@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -18,11 +17,11 @@ export default function Register() {
     setMessage("");
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/register', {
+      const response = await fetch("http://localhost:8000/api/v1/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
           username: username,
@@ -36,29 +35,39 @@ export default function Register() {
 
       if (response.ok) {
         setMessage(data.message || "Registration successful!");
-        setUsername('');
-        setEmail('');
-        setPassword('');
-        setRole('');
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setRole("");
 
         setTimeout(() => {
-          navigate('/');
+          navigate("/profile");
         }, 2000);
       } else {
         setError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setError("Failed to connect to the server. Please check your network and try again.");
+      setError(
+        "Failed to connect to the server. Please check your network and try again."
+      );
       console.error("Network error:", err);
     }
   };
 
   return (
-    
-    <div className="d-flex align-items-center justify-content-center vh-100  p-4" style={{backgroundColor: 'darkblue'}}>
+    <div
+      className="d-flex align-items-center justify-content-center vh-100  p-4"
+      style={{ backgroundColor: "darkblue" }}
+    >
       <div className="card shadow-lg p-4 col-12 col-md-8 col-lg-5">
         <div className="card-body">
-          <h2 className="card-title text-center mb-4" style={{color:"yellow"}}><span style={{color:"orangered"}}>Create</span> <span style={{color:"darkblue"}}>an</span> Account</h2>
+          <h2
+            className="card-title text-center mb-4"
+            style={{ color: "yellow" }}
+          >
+            <span style={{ color: "orangered" }}>Create</span>{" "}
+            <span style={{ color: "darkblue" }}>an</span> Account
+          </h2>
 
           {message && (
             <div className="alert alert-success" role="alert">
@@ -71,10 +80,11 @@ export default function Register() {
             </div>
           )}
 
-          
           <form onSubmit={handleRegister}>
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label">
+                Username
+              </label>
               <input
                 id="username"
                 type="text"
@@ -86,7 +96,9 @@ export default function Register() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -98,7 +110,9 @@ export default function Register() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -110,7 +124,9 @@ export default function Register() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="role" className="form-label">Role</label>
+              <label htmlFor="role" className="form-label">
+                Role
+              </label>
               <input
                 id="role"
                 type="text"
@@ -122,7 +138,11 @@ export default function Register() {
             </div>
 
             <div className="d-grid gap-2">
-              <button type="submit" className="btn text-white" style={{backgroundColor:"darkblue"}}>
+              <button
+                type="submit"
+                className="btn text-white"
+                style={{ backgroundColor: "darkblue" }}
+              >
                 Register
               </button>
             </div>

@@ -9,7 +9,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [Token, setToken] = useState("");
 
-
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -35,6 +34,7 @@ export default function Login() {
       if (response.ok) {
         localStorage.setItem("authToken", data.Token);
         localStorage.setItem("username", data.User.username);
+        localStorage.setItem("userId",data.User.id);
         setToken(data.Token);
         setUsername(data.User.username);
         setMessage(data.message || "Login Successfully.");
@@ -51,7 +51,6 @@ export default function Login() {
       setError("Failed to connect to the server. Please Try again.");
     }
   };
-
 
   return (
     <div className="container mt-5">
@@ -120,19 +119,6 @@ export default function Login() {
                   <Link to="/retrieve">
                     <p>Forget Password?</p>
                   </Link>
-                </div>
-                <div className="d-grid gap-2">
-                  <button
-                    className="btn btn-lg text-white"
-                    style={{ background: "darkblue" }}
-                  >
-                    <Link
-                      to="/register"
-                      className="text-decoration-none text-white"
-                    >
-                      Register
-                    </Link>
-                  </button>
                 </div>
               </form>
             </div>

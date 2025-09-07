@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -71,9 +72,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function index()
+    public function index($userId)
     {
-        $userProfile = User::find(1);
+        $userProfile = User::find($userId);
 
         if (!$userProfile) {
             return response()->json([
@@ -86,26 +87,31 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request, User $user)
+    public function updateProfile(Request $request)
     {
+        $user = $request->user();
+
         $updateData = $request->validate([
-            'username' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'role' => 'required',
             'image' => 'nullable|image|mimes:png,jpeg,gif,svg,webp|max:2048'
         ]);
 
+       
         if ($request->hasFile('image')) {
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
             $imagePath = $request->file('image')->store('images', 'public');
-        } else {
-            $imagePath = $user->image;
+            $user->image = $imagePath;
         }
 
-        $user->update($updateData);
+        // You may want to update other fields here as well
+        // $user->username = $request->username;
+        // $user->email = $request->email;
+
+        $user->save();
 
         return response()->json([
-            'message' => 'Successfully Update Profile',
+            'message' => 'Successfully Updated Profile',
             'User' => $user
         ]);
     }

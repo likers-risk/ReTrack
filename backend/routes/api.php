@@ -19,10 +19,10 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('/purchase',[OrderController::class, 'purchaseProducts']);
     Route::get('/orders/{id}',[OrderController::class, 'customerOrders']);
     Route::get('/search-product',[ProductController::class, 'searchProduct']);
-    Route::get('/user-profile',[UserController::class, 'index']);
+    Route::get('/user-profile/{id}',[UserController::class, 'index']);
     Route::get('/total-sales',[OrderController::class, 'totalSales']);
     Route::get('/sales-revenue',[OrderController::class, 'totalRevenue']);
-    Route::put('/edit-profile',[UserController::class, 'updateProfile']);
+    Route::post('/edit-profile',[UserController::class, 'updateProfile']);
 });
 
 

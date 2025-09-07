@@ -1,52 +1,49 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import UserProfile from "../assets/userprofile.png";
 
-
-const Profile = () => {
+const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
-
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       const authToken = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("userId");
 
-      if (!authToken) {
+      if (!authToken || !userId) {
         setError("Authentication token or user ID not found.");
-        navigate('/');
+        navigate("/");
         return;
       }
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/user-profile`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/user-profile/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch credentials");
+          throw new Error("Failed to fetch user credentials.");
         }
+
         const data = await response.json();
         setUser(data.user);
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        console.error("Fetch user error:", err);
+        setError(err.message);
       }
     };
+
     fetchUser();
-  }, []);
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  }, [userId, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -80,12 +77,16 @@ const Profile = () => {
     }
   };
 
-  const handleNotification = () => {
-    navigate("notification");
-  };
+  const handleNotification = () => navigate("notification");
+  const handleReport = () => navigate("total-sales");
+  const handleAdminInfo = () => navigate("admin-information");
 
-  const handleReport = () => {
-    navigate('total-sales');
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!user) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -94,22 +95,36 @@ const Profile = () => {
         className="d-flex flex-column justify-content-between p-3"
         style={{ height: "82vh", backgroundColor: "#F3F2EC" }}
       >
-        <div className="d-flex flex-column">
-          <img
-            src={user.image}
-            alt=""
-            style={{ height: "50px", width: "50px", borderRadius: "20px" }}
-          />
+        <div className="d-flex flex-column" onClick={handleAdminInfo}>
+          {user.image ? (
+            <img
+              src={`http://127.0.0.1:8000/storage/${user.image}`}
+              alt="User profile"
+              style={{ height: "50px", width: "50px", borderRadius: "50px" }}
+            />
+          ) : (
+            <img
+              src={UserProfile}
+              alt="Default user profile"
+              style={{ height: "50px", width: "50px", borderRadius: "20px" }}
+            />
+          )}
           <p className="fw-semibold">{user.username}</p>
           <p className="fw-bold">{user.role}</p>
+          <p className="fw-semibold">{user.email}</p>
         </div>
 
         <div className="d-flex flex-column gap-2">
           <div>
-            <button className="btn d-flex align-items-center profile-button"><i className="fa fa-check-circle"></i>Status</button>
+            <button className="btn d-flex align-items-center profile-button">
+              <i className="fa fa-check-circle"></i>Status
+            </button>
           </div>
           <div className="d-flex">
-            <button className="btn d-flex align-items-center profile-button" onClick={handleReport}>
+            <button
+              className="btn d-flex align-items-center profile-button"
+              onClick={handleReport}
+            >
               <i className="fa fa-file-alt"></i>Reports
             </button>
           </div>
@@ -122,7 +137,7 @@ const Profile = () => {
           </button>
           <div>
             <button
-              type="submit"
+              type="button"
               className="btn d-flex align-items-center profile-button"
               onClick={handleSignOut}
             >

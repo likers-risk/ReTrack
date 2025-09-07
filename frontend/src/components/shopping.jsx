@@ -163,6 +163,8 @@ const ProductView = () => {
         setIsSuccess(false);
       }, 3000);
 
+      window.location.reload();
+
       setQuantities((prev) => ({ ...prev, [productId]: "" }));
     } catch (err) {
       console.error(err);

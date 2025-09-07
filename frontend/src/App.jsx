@@ -10,6 +10,7 @@ import ProductView from "./components/shopping";
 import Profile from "./pages/Profile";
 import Notification from "./components/notification";
 import Reports from "./components/Report";
+import AdminInformation from "./components/adminInfo";
 
 function App() {
   return (
@@ -27,6 +28,8 @@ function App() {
             <Route path="shopping" element={<ProductView />} />
           </Route>
           <Route path="/profile" element={<Profile />}>
+            <Route index element={<AdminInformation />} />
+            <Route path="admin-information" element={<AdminInformation />} />
             <Route path="total-sales" element={<Reports />} />
             <Route path="notification" element={<Notification />} />
           </Route>
