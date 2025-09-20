@@ -92,7 +92,7 @@ const Profile = ({ userId }) => {
   return (
     <div className="d-flex flex-row gap-5">
       <div
-        className="d-flex flex-column justify-content-between p-3"
+        className="d-flex flex-column justify-content-between p-3 sticky-top"
         style={{ height: "82vh", backgroundColor: "#F3F2EC" }}
       >
         <div className="d-flex flex-column" onClick={handleAdminInfo}>

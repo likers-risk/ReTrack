@@ -115,8 +115,8 @@ class OrderController extends Controller
         $totalSales = DB::table('orders')->sum('total_price');
 
         $totalCostOfSold = DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->sum(DB::raw('order_items.quantity * products.cost'));
+                        ->join('products', 'order_items.product_id', '=', 'products.id')
+                        ->sum(DB::raw('order_items.quantity * products.cost'));
 
         $revenue = $totalSales - $totalCostOfSold;
 

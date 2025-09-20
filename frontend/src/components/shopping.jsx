@@ -93,7 +93,6 @@ const ProductView = () => {
     }
   };
 
-  // Delete products Logic
   const deleteProduct = async (productId) => {
     const authToken = localStorage.getItem("authToken");
 
@@ -120,7 +119,6 @@ const ProductView = () => {
     }
   };
 
-  // Buy Product Logic
   const buyProduct = async (productId) => {
     const authToken = localStorage.getItem("authToken");
     const quantity = quantities[productId] || 0;
@@ -178,7 +176,6 @@ const ProductView = () => {
 
   return (
     <div className="container py-4 bg-white overflow-auto">
-      {/* Moved the success modal inside the main container to fix the JSX structure */}
       {isSuccess && (
         <div
           className="modal fade show"
