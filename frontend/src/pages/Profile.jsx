@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 
 const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +47,8 @@ const Profile = ({ userId }) => {
   }, [userId, navigate]);
 
   const handleSignOut = async () => {
+    if (!window.confirm("Are you sure you want to log out?")) return;
+
     try {
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
@@ -80,6 +83,16 @@ const Profile = ({ userId }) => {
   const handleNotification = () => navigate("notification");
   const handleReport = () => navigate("total-sales");
   const handleAdminInfo = () => navigate("admin-information");
+  const handleEditProfile = () => navigate("edit-profile");
+  const handleActivityLog = () => navigate("activity-log");
+  const handleAddProduct = () => navigate("/dashboard/add-item");
+  const handleViewStock = () => navigate("/dashboard/shopping");
+
+  const toggleTheme = () => {
+    setDarkMode((prev) => !prev);
+    document.body.style.backgroundColor = !darkMode ? "#2d2d2d" : "#fff";
+    document.body.style.color = !darkMode ? "#fff" : "#000";
+  };
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -91,10 +104,12 @@ const Profile = ({ userId }) => {
 
   return (
     <div className="d-flex flex-row gap-5">
+      {/* Sidebar */}
       <div
-        className="d-flex flex-column justify-content-between p-3 sticky-top"
-        style={{ height: "82vh", backgroundColor: "#F3F2EC" }}
+        className="d-flex flex-column justify-content-between p-3 sticky-top shadow"
+        style={{ height: "100vh", }}
       >
+        {/* User Info */}
         <div className="d-flex flex-column" onClick={handleAdminInfo}>
           {user.image ? (
             <img
@@ -114,39 +129,70 @@ const Profile = ({ userId }) => {
           <p className="fw-semibold">{user.email}</p>
         </div>
 
+        {/* Buttons */}
         <div className="d-flex flex-column gap-2">
-          <div>
-            <button className="btn d-flex align-items-center profile-button">
-              <i className="fa fa-check-circle"></i>Status
-            </button>
-          </div>
-          <div className="d-flex">
-            <button
-              className="btn d-flex align-items-center profile-button"
-              onClick={handleReport}
-            >
-              <i className="fa fa-file-alt"></i>Reports
-            </button>
-          </div>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleEditProfile}
+          >
+            <i className="fa fa-user-edit me-2"></i>Edit Profile
+          </button>
+
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleReport}
+          >
+            <i className="fa fa-file-alt me-2"></i>Reports
+          </button>
+
           <button
             className="btn d-flex align-items-center profile-button"
             onClick={handleNotification}
           >
-            <i className="fa-solid fa-bell text-black me-2"></i>
-            Notification
+            <i className="fa-solid fa-bell text-black me-2"></i>Notification
           </button>
-          <div>
-            <button
-              type="button"
-              className="btn d-flex align-items-center profile-button"
-              onClick={handleSignOut}
-            >
-              <i className="fa-solid fa-sign-out-alt me-2"></i>Logout
-            </button>
-          </div>
+
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleActivityLog}
+          >
+            <i className="fa fa-history me-2"></i>Activity Log
+          </button>
+
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleAddProduct}
+          >
+            <i className="fa fa-plus-circle me-2"></i>Add Product
+          </button>
+
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleViewStock}
+          >
+            <i className="fa fa-boxes me-2"></i>View Stock
+          </button>
+
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={toggleTheme}
+          >
+            <i className="fa fa-adjust me-2"></i>
+            {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+
+          <button
+            type="button"
+            className="btn d-flex align-items-center profile-button text-danger"
+            onClick={handleSignOut}
+          >
+            <i className="fa-solid fa-sign-out-alt me-2"></i>Logout
+          </button>
         </div>
       </div>
-      <div className="flex-grow-1 p-3 overflow-auto">
+
+      {/* Main Content */}
+      <div className="flex-grow-1 p-3 overflow-auto" style={{backgroundColor: "#3C467B"}}>
         <Outlet />
       </div>
     </div>

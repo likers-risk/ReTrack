@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import retrackLogo from "../assets/Retrack.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isOrder, setIsOrder] = useState(false);
 
   useEffect(() => {
     setError("");
@@ -21,109 +21,140 @@ const Dashboard = () => {
   }, [navigate]);
 
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
-  const toggleOrder = () => setIsOrder((prev) => !prev);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen text-blue-500">
-        <h4 className="text-center text-lg">Loading...</h4>
+      <div className="d-flex justify-content-center align-items-center vh-100 text-primary">
+        <h4 className="text-center">Loading...</h4>
       </div>
     );
   }
 
   return (
-    <div className="d-flex flex-row" style={{ minHeight: "100vh" }}>
-      {/* Sidebar */}
-      <div
-        className="card d-flex flex-column p-3 sticky-top gap-5"
-        style={{
-          height: "82vh",
-          width: isCollapsed ? "70px" : "180px",
-          transition: "width 0.3s ease",
-        }}
+    <div
+      className="d-flex flex-column"
+      style={{ minHeight: "100vh", backgroundColor: "#3C467B" }}
+    >
+      {/* Header */}
+      <header
+        className="d-flex justify-content-between align-items-center shadow-sm px-4 py-3"
+        style={{ backgroundColor: "white" }}
       >
-        <button
-          className="mb-3"
-          style={{ border: "none", background: "transparent" }}
-          onClick={toggleSidebar}
+        <div>
+          <img
+            src={retrackLogo}
+            alt="Retrack Logo"
+            className="img-fluid"
+            style={{ maxWidth: "120px" }}
+          />
+        </div>
+
+        <div className="text-center">
+          <h2
+            style={{
+              color: "darkblue",
+              fontFamily: "Arial",
+              fontWeight: "bold",
+            }}
+          >
+            Re<span style={{ color: "orangered" }}>Tra</span>
+            <span style={{ color: "yellow" }}>ck</span>
+          </h2>
+          <h4
+            style={{
+              color: "orangered",
+              fontFamily: "Arial",
+              fontWeight: "bold",
+            }}
+          >
+            Inv<span style={{ color: "darkblue" }}>ent</span>
+            <span style={{ color: "yellow" }}>ory</span>
+          </h4>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div className="d-flex flex-row flex-grow-1">
+        {/* Sidebar */}
+        <div
+          className="d-flex flex-column p-3 sticky-top gap-3 shadow rounded"
+          style={{
+            height: "100%",
+            width: isCollapsed ? "70px" : "200px",
+            backgroundColor: "#f8f9fa",
+            transition: "width 0.3s ease",
+          }}
         >
-          <i className="fa-solid fa-bars"></i>
-        </button>
+          <button
+            className="mb-2 btn btn-sm btn-outline-secondary "
+            onClick={toggleSidebar}
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            <i className="fa-solid fa-bars"></i>
+          </button>
 
-        <Link
-          to="home"
-          className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-5"
+          <SidebarLink
+            to="home"
+            icon="fa-house"
+            label="Home"
+            collapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="shopping"
+            icon="fa-cart-shopping"
+            label="Shop"
+            collapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="add-item"
+            icon="fa-clipboard-check"
+            label="Add Item"
+            collapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="sales"
+            icon="fa-chart-bar"
+            label="Sales"
+            collapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="/profile"
+            icon="fa-user"
+            label="Profile"
+            collapsed={isCollapsed}
+          />
+
+          {error && <div className="text-danger mt-2 small">{error}</div>}
+        </div>
+
+        {/* Main Content */}
+        <div
+          className="flex-grow-1 p-4 overflow-auto"
+          style={{ backgroundColor: "#3C467B" }}
         >
-          <i className="fa-solid fa-house me-2" style={{ fontSize: "24px" }} />
-          {!isCollapsed && <span>Home</span>}
-        </Link>
-
-        <Link
-          to="shopping"
-          className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-5"
-        >
-          <i className="fa-solid fa-cart-shopping me-2" style={{ fontSize: "24px" }} />
-          {!isCollapsed && <span>Shop</span>}
-        </Link>
-
-        <Link
-          to="add-item"
-          className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-5"
-        >
-          <i className="fa-solid fa-clipboard-check me-2" style={{ fontSize: "24px" }} />
-          {!isCollapsed && <span>Add Item</span>}
-        </Link>
-
-        <Link
-          to="sales"
-          className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-5"
-        >
-          <i className="fa-solid fa-chart-bar me-2" style={{ fontSize: "24px" }} />
-          {!isCollapsed && <span>Sales</span>}
-        </Link>
-
-        <Link
-          to="/profile"
-          className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-5"
-        >
-          <i className="fa fa-user me-2" style={{ fontSize: "24px" }} />
-          {!isCollapsed && <span>Profile</span>}
-        </Link>
-
-        {error && <div className="text-danger mt-2">{error}</div>}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-grow-1 p-3 overflow-auto">
-        <Outlet />
-        <button
-          className="btn btn-outline-primary mt-3"
-          onClick={toggleOrder}
-        >
-          {isOrder ? "Close Orders" : "Open Orders"}
-        </button>
-      </div>
-
-      {/* Order Sidebar */}
-      <div
-        className="d-flex flex-column bg-white shadow-sm rounded"
-        style={{
-          height: "82vh",
-          width: isOrder ? "200px" : "0px",
-          overflow: "hidden",
-          transition: "width 0.3s ease",
-        }}
-      >
-        {/* You can put your order details here */}
-        {isOrder && (
-          <div className="p-3">
-            <h5 className="fw-bold">Orders</h5>
-            <p>Order details will appear here...</p>
-          </div>
-        )}
+          <Outlet />
+        </div>
       </div>
     </div>
   );
 };
+
+
+const SidebarLink = ({ to, icon, label, collapsed }) => (
+  <Link
+    to={to}
+    className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-6 py-2 px-2 rounded"
+    title={collapsed ? label : ""}
+    style={{
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      transition: "all 0.3s ease",
+    }}
+  >
+    <i className={`fa-solid ${icon}`} style={{ fontSize: "20px", minWidth: "30px" }} />
+    {!collapsed && <span>{label}</span>}
+  </Link>
+);
 
 export default Dashboard;

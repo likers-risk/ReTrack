@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Reports = () => {
-  const [totalSales, setTotalSales] = useState("");
-  const [totalRevenue, setRevenue] = useState("");
+  const [totalSales, setTotalSales] = useState(0);
+  const [totalRevenue, setRevenue] = useState(0);
+  const [lowStock, setLowStock] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // useEffect is necessary for side effects like data fetching.
+  // ✅ Fetch Total Sales
   useEffect(() => {
     const fetchTotalSales = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -27,13 +29,9 @@ const Reports = () => {
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to get total sales.");
-        }
-
+        if (!response.ok) throw new Error("Failed to get total sales.");
         const data = await response.json();
-        setTotalSales(data.total_sales);
-        console.log("Successfully fetched total sales.");
+        setTotalSales(data.total_sales || 0);
       } catch (err) {
         setError(err.message || "Server Error");
       }
@@ -42,67 +40,150 @@ const Reports = () => {
     fetchTotalSales();
   }, [navigate]);
 
+  // ✅ Fetch Revenue
   useEffect(() => {
     const fetchRevenue = async () => {
       const authToken = localStorage.getItem("authToken");
       try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/sales-revenue",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await fetch("http://127.0.0.1:8000/api/sales-revenue", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
-        if (!response.ok) {
-          throw new Error("Error Fetching Revenue");
-        }
-
+        if (!response.ok) throw new Error("Error Fetching Revenue");
         const data = await response.json();
-        setRevenue(data.revenue);
-        console.log("Successfully fetched total Revenue.");
+        setRevenue(data.revenue || 0);
       } catch (err) {
         setError(err.message || "Server Error");
       }
     };
 
     fetchRevenue();
-  });
+  }, []);
+
+  // ✅ Fetch Low Stock Items
+  useEffect(() => {
+    const fetchLowStock = async () => {
+      const authToken = localStorage.getItem("authToken");
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/low-stock", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Error Fetching Low Stock Items");
+        const data = await response.json();
+        setLowStock(data.low_stock || []);
+      } catch (err) {
+        setError(err.message || "Server Error");
+      }
+    };
+
+    fetchLowStock();
+  }, []);
+
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      const authToken = localStorage.getItem("authToken");
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/top-products", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Error Fetching Top Products");
+        const data = await response.json();
+        setTopProducts(data.top_products || []);
+      } catch (err) {
+        setError(err.message || "Server Error");
+      }
+    };
+
+    fetchTopProducts();
+  }, []);
 
   const navigateDashboard = () => {
     navigate("/dashboard");
   };
 
   return (
-    <div className="d-flex flex-column bg-white">
-      <div className="p-2">
+    <div className="d-flex flex-column p-3 rounded shadow-sm" style={{backgroundColor: "#50589C"}}>
+      {/* Back Button */}
+      <div className="mb-3">
         <button
-          className="text-primary bg-dark fw-semibold"
-          style={{ borderRadius: "5px", border: "none" }}
+          className="btn btn-dark fw-semibold"
           onClick={navigateDashboard}
         >
-          <i className="fa fa-arrow-left"></i>Back
+          <i className="fa fa-arrow-left"></i> Back
         </button>
       </div>
-      {error && <div className="text-danger">{error}</div>}
-      <div className="d-flex flex-row p-2 gap-5">
-        <div className="card p-2 shadow-lg" style={{ border: "none" }}>
+
+      {/* Error Message */}
+      {error && <div className="text-danger fw-bold">{error}</div>}
+
+      {/* Sales & Revenue */}
+      <div className="d-flex flex-wrap gap-3 mb-4">
+        <div className="card p-3 shadow-sm flex-fill text-center">
           <h5>Total Sales</h5>
-          <p className="text-center fw-semibold">
-            <i className="fa fa-peso-sign"></i>
-            {totalSales || "0"}
+          <p className="fw-bold fs-4 text-success">
+            <i className="fa fa-cart-shopping"></i> {totalSales}
           </p>
         </div>
 
-        <div className="card p-2 shadow-lg" style={{ border: "none" }}>
+        <div className="card p-3 shadow-sm flex-fill text-center">
           <h5>Total Revenue</h5>
-          <p className="text-center fw-semibold">
-            <i className="fa fa-peso-sign"></i>{totalRevenue || "0"}
+          <p className="fw-bold fs-4 text-primary">
+            <i className="fa fa-peso-sign"></i> {totalRevenue}
           </p>
         </div>
+      </div>
+
+      {/* Low Stock Items */}
+      <div className="card p-3 shadow-sm mb-4">
+        <h5 className="fw-bold text-danger">⚠️ Low Stock Items</h5>
+        {lowStock.length > 0 ? (
+          <ul className="list-group mt-2">
+            {lowStock.map((item, index) => (
+              <li
+                key={index}
+                className="list-group-item d-flex justify-content-between align-items-center"
+              >
+                {item.name}
+                <span className="badge bg-danger rounded-pill">
+                  {item.quantity}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted">No low stock items.</p>
+        )}
+      </div>
+
+      {/* Top Selling Products */}
+      <div className="card p-3 shadow-sm">
+        <h5 className="fw-bold text-success">🔥 Top Selling Products</h5>
+        {topProducts.length > 0 ? (
+          <ol className="mt-2">
+            {topProducts.map((product, index) => (
+              <li key={index} className="fw-semibold">
+                {product.name} — {product.sold} sold
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-muted">No sales data available.</p>
+        )}
       </div>
     </div>
   );

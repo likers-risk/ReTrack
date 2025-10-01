@@ -17,8 +17,8 @@ const AdminInformation = () => {
 
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
-      setError("Authentication token not found. Redirecting to login.");
-      setTimeout(() => navigate("/"), 1500); 
+      setError("Authentication token not found. Redirecting to login...");
+      setTimeout(() => navigate("/"), 1500);
       return;
     }
 
@@ -39,16 +39,14 @@ const AdminInformation = () => {
         throw new Error(errorData.detail || "Image upload failed.");
       }
 
-      const data = await response.json();
-      console.log("Image uploaded successfully:", data);
+      await response.json();
       setError("");
-      setSuccess(true); 
+      setSuccess(true);
 
       setTimeout(() => {
         setSuccess(false);
         window.location.reload();
-      }, 3000);
-
+      }, 2500);
     } catch (err) {
       setError(err.message || "An error occurred during upload.");
       setSuccess(false);
@@ -56,63 +54,71 @@ const AdminInformation = () => {
   };
 
   return (
-    <div className="d-flex flex-column bg-white p-2">
+    <div className="d-flex flex-column bg-white p-3 rounded shadow-sm">
+      {/* ✅ Success Modal */}
       {success && (
         <div
           className="modal fade show"
-          style={{ display: "block" }}
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
           tabIndex="-1"
           role="dialog"
           aria-modal="true"
           aria-labelledby="successTitle"
-          aria-hidden={!success}
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header border-0 pb-0 justify-content-center">
-                <h5
-                  className="modal-title fs-4 fw-bold text-success"
-                  id="successTitle"
-                >
-                  Success!
+            <div className="modal-content border-0 shadow">
+              <div className="modal-header justify-content-center border-0">
+                <h5 className="modal-title fs-4 fw-bold text-success">
+                  ✅ Success!
                 </h5>
               </div>
-              <div className="modal-body text-center pt-2">
-                <p id="successDesc">Updated Profile Successfully.</p>
+              <div className="modal-body text-center">
+                <p>Updated Profile Successfully.</p>
+                <button
+                  className="btn btn-outline-success"
+                  onClick={() => setSuccess(false)}
+                >
+                  OK
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      
-      {error && <p className="text-danger text-center mt-3">{error}</p>}
+      {/* ❌ Error Message */}
+      {error && <p className="text-danger text-center mt-2">{error}</p>}
 
-      <div className="form">
-        <form onSubmit={handleImageSubmit}>
-          <input
-            type="file"
-            id="image"
-            onChange={(e) => setImage(e.target.files[0])}
-            accept="image/*"
-            className="form-control mb-3"
-          />
-          <button type="submit" className="btn btn-primary w-100">
-            Upload Image
-          </button>
-        </form>
+      {/* 📤 Upload Profile Image */}
+      <form onSubmit={handleImageSubmit} className="mt-2">
+        <label className="fw-bold">Upload Admin Profile Image</label>
+        <input
+          type="file"
+          id="image"
+          onChange={(e) => setImage(e.target.files[0])}
+          accept="image/*"
+          className="form-control mb-3"
+        />
+        <button type="submit" className="btn btn-primary w-100">
+          Upload Image
+        </button>
+      </form>
+
+      {/* 📊 Store Inventory Quick Actions (Only Reports + Orders) */}
+      <div className="mt-4">
+        <h5 className="fw-bold">Inventory Management</h5>
+        <div className="d-grid gap-2 mt-2">
+          <Link to="/dashboard/orders" className="btn btn-secondary">
+            🛒 Manage Orders
+          </Link>
+        </div>
       </div>
 
+      {/* ➕ Register New Admin/Staff */}
       <div className="d-grid gap-2 mt-4">
-        <button
-          className="btn btn-lg text-white"
-          style={{ background: "darkblue" }}
-        >
-          {/* Link should be outside the button element */}
-          <Link to="/register" className="text-decoration-none text-white">
-            Register
-          </Link>
-        </button>
+        <Link to="/register" className="btn btn-lg text-white" style={{ background: "darkblue" }}>
+          👤 Register New Admin/Staff
+        </Link>
       </div>
     </div>
   );

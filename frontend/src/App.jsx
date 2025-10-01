@@ -11,12 +11,13 @@ import Profile from "./pages/Profile";
 import Notification from "./components/notification";
 import Reports from "./components/Report";
 import AdminInformation from "./components/adminInfo";
+import ManageOrders from "./pages/ManageOrder";
+import EditProfile from "./components/EditProfile";
 
 function App() {
   return (
     <>
       <div>
-        <Header />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -32,7 +33,9 @@ function App() {
             <Route path="admin-information" element={<AdminInformation />} />
             <Route path="total-sales" element={<Reports />} />
             <Route path="notification" element={<Notification />} />
+            <Route path="edit-profile" element={<EditProfile />} />
           </Route>
+          <Route path="dashboard/orders" element={<ManageOrders />} />
         </Routes>
       </div>
     </>

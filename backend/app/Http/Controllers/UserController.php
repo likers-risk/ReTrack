@@ -15,6 +15,14 @@ class UserController extends Controller
 {
     public function register(Request $request)
     {
+
+        $user = $request->user();
+
+        if(!$user instanceof User) {
+            return response()->json(['message' => 'Unauthorized'],403);
+        }
+
+
         $validatedData = $request->validate([
             'username' => 'required',
             'email' => 'required|email',
