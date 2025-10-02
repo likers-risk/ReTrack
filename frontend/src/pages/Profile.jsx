@@ -47,7 +47,6 @@ const Profile = ({ userId }) => {
   }, [userId, navigate]);
 
   const handleSignOut = async () => {
-    if (!window.confirm("Are you sure you want to log out?")) return;
 
     try {
       const authToken = localStorage.getItem("authToken");

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 
 const EditProfile = () => {
@@ -10,11 +10,13 @@ const EditProfile = () => {
   const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch current user data
+  
   useEffect(() => {
     const fetchUser = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -26,9 +28,12 @@ const EditProfile = () => {
       }
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/user-profile/${userId}`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/user-profile/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${authToken}` },
+          }
+        );
 
         if (!response.ok) throw new Error("Failed to fetch user data.");
         const data = await response.json();
@@ -38,13 +43,15 @@ const EditProfile = () => {
         setRole(data.user.role);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
   }, [navigate]);
 
-  // Handle profile update
+  
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
 
@@ -74,7 +81,7 @@ const EditProfile = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
+        const errData = await response.json().catch(() => ({}));
         throw new Error(errData.message || "Profile update failed.");
       }
 
@@ -86,19 +93,30 @@ const EditProfile = () => {
     }
   };
 
-  if (!user) return <p>Loading profile...</p>;
+  if (loading) return <p>Loading profile...</p>;
 
   return (
     <div className="container mt-4">
-      <h3 className="fw-bold mb-3">Edit Profile</h3>
+      <h3 className="fw-bold mb-3 text-white">Profile</h3>
       {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">Profile updated successfully!</div>}
+      {success && (
+        <div className="alert alert-success">Profile updated successfully!</div>
+      )}
 
-      <form onSubmit={handleUpdateProfile} className="bg-white p-4 shadow rounded">
-        {/* Profile Image */}
+      <form
+        onSubmit={handleUpdateProfile}
+        className="bg-white p-4 shadow rounded"
+      >
+       
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
-            src={image ? URL.createObjectURL(image) : user.image ? `http://127.0.0.1:8000/storage/${user.image}` : UserProfile}
+            src={
+              image
+                ? URL.createObjectURL(image)
+                : user.image
+                ? `http://127.0.0.1:8000/storage/${user.image}`
+                : UserProfile
+            }
             alt="Profile"
             style={{ width: "80px", height: "80px", borderRadius: "50%" }}
           />
@@ -110,7 +128,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Username */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -121,7 +139,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Email */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -132,28 +150,40 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Role */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
-          <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
+          <select
+            className="form-select"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
             <option value="Admin">Admin</option>
             <option value="Staff">Staff</option>
             <option value="Super_Admin">Super Admin</option>
           </select>
         </div>
 
-        {/* Password */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">New Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="input-group">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈 Hide" : "👁️ Show"}
+            </button>
+          </div>
         </div>
 
-        {/* Confirm Password */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">Confirm Password</label>
           <input
@@ -164,16 +194,35 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Submit Button */}
+      
         <button type="submit" className="btn btn-primary w-100 fw-semibold">
           Save Changes
         </button>
       </form>
 
-      {/* Last Login / Status */}
-      <div className="mt-4 p-3 bg-light rounded shadow-sm">
-        <p><strong>Last Login:</strong> {user.last_login ? new Date(user.last_login).toLocaleString() : "N/A"}</p>
-        <p><strong>Status:</strong> {user.is_active ? "Active ✅" : "Inactive ❌"}</p>
+      
+      <div className="bg-light p-3 mt-3 rounded">
+        <h6 className="fw-bold">Profile Info</h6>
+        <p>📛 Role: {user.role}</p>
+        <p>📧 Email: {user.email}</p>
+        <p>🕒 Joined: {new Date(user.created_at).toLocaleDateString()}</p>
+        {user.last_login && (
+          <p>✅ Last Login: {new Date(user.last_login).toLocaleString()}</p>
+        )}
+      </div>
+
+     
+      <div className="d-grid gap-2 mt-4">
+        <Link to="/dashboard" className="btn btn-outline-secondary">
+          📊 Back to Dashboard
+        </Link>
+        <Link
+          to="/register"
+          className="btn btn-lg text-white"
+          style={{ background: "darkblue" }}
+        >
+          👤 Register New Admin/Staff
+        </Link>
       </div>
     </div>
   );

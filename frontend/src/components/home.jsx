@@ -12,21 +12,21 @@ export default function Home() {
 
     const fetchData = async () => {
       try {
-        // Fetch total sales
+      
         const salesRes = await fetch("http://127.0.0.1:8000/api/total-sales", {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const salesData = await salesRes.json();
         setTotalSales(salesData.total_sales || 0);
 
-        // Fetch total revenue
+       
         const revenueRes = await fetch("http://127.0.0.1:8000/api/sales-revenue", {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const revenueData = await revenueRes.json();
         setTotalRevenue(revenueData.revenue || 0);
 
-        // Fetch products
+        
         const productsRes = await fetch("http://127.0.0.1:8000/api/products", {
           headers: { Authorization: `Bearer ${authToken}` },
         });
@@ -41,36 +41,36 @@ export default function Home() {
   }, []);
 
   const lowStockProducts = products.filter((p) => p.stocks?.quantity < 5);
-  const recentProducts = products.slice(-5).reverse(); // last 5 added products
+  const recentProducts = products.slice(-5).reverse(); 
 
   return (
-    <div style={{ backgroundColor: "#F3F2EC", minHeight: "100vh", padding: "20px" }}>
+    <div className="rounded" style={{ backgroundColor: "#F3F2EC", minHeight: "100vh", padding: "20px" }}>
       {error && <p className="text-danger">{error}</p>}
 
-      {/* Summary Cards */}
+      
       <div className="d-flex flex-wrap justify-content-around gap-3 mb-4">
-        <div className="card p-3 shadow rounded-4 flex-fill" style={{ minWidth: "180px" }}>
+        <div className="card p-3 shadow rounded-4 flex-fill bg-primary text-white" style={{ minWidth: "180px" }}>
           <h5>Total Sales</h5>
           <p className="fs-4 fw-bold">₱{totalSales}</p>
         </div>
 
-        <div className="card p-3 shadow rounded-4 flex-fill" style={{ minWidth: "180px" }}>
+        <div className="card p-3 shadow rounded-4 flex-fill bg-success text-white" style={{ minWidth: "180px" }}>
           <h5>Total Revenue</h5>
           <p className="fs-4 fw-bold">₱{totalRevenue}</p>
         </div>
 
-        <div className="card p-3 shadow rounded-4 flex-fill" style={{ minWidth: "180px" }}>
+        <div className="card p-3 shadow rounded-4 flex-fill text-white" style={{ minWidth: "180px", backgroundColor: "#3C467B" }}>
           <h5>Total Products</h5>
           <p className="fs-4 fw-bold">{products.length}</p>
         </div>
 
-        <div className="card p-3 shadow rounded-4 flex-fill" style={{ minWidth: "180px" }}>
+        <div className="card p-3 shadow rounded-4 flex-fill bg-warning text-white" style={{ minWidth: "180px" }}>
           <h5>Low Stock Items</h5>
           <p className="fs-4 fw-bold text-danger">{lowStockProducts.length}</p>
         </div>
       </div>
 
-      {/* Recent Products Table */}
+      
       <div className="card p-3 shadow rounded-4 mb-4 bg-white">
         <h5 className="fw-bold mb-3">Recently Added Products</h5>
         <div className="table-responsive">
@@ -106,7 +106,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Low Stock Alerts */}
+      
       <div className="card p-3 shadow rounded-4 bg-white">
         <h5 className="fw-bold mb-3 text-danger">Low Stock Alerts</h5>
         {lowStockProducts.length > 0 ? (

@@ -8,34 +8,38 @@ const ProductView = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [cartItems, setCartItems] = useState([]); 
+  const [cartItems, setCartItems] = useState([]);
+
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [showLowStockModal, setShowLowStockModal] = useState(false);
+  const [lowStockMessages, setLowStockMessages] = useState([]);
 
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
-    const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      console.error("Invalid Unauthorized, please log in");
-      navigate("/");
-      return;
-    }
-
     try {
       setIsLoading(true);
+      const authToken = localStorage.getItem("authToken");
+
       const response = await fetch("http://127.0.0.1:8000/api/products", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+          ...(authToken && { Authorization: `Bearer ${authToken}` }),
         },
       });
+
       if (!response.ok) {
-        throw new Error("Failed to fetch products");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error ${response.status}`);
       }
+
       const data = await response.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to fetch products");
     } finally {
       setIsLoading(false);
     }
@@ -63,12 +67,10 @@ const ProductView = () => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to search products");
-      }
+      if (!response.ok) throw new Error("Failed to search products");
 
       const data = await response.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (err) {
       setError(err.message);
       setProducts([]);
@@ -84,11 +86,7 @@ const ProductView = () => {
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    if (term.trim() === "") {
-      fetchProducts();
-    } else {
-      searchProducts(term);
-    }
+    term.trim() ? searchProducts(term) : fetchProducts();
   };
 
   const handleAddToCart = (product) => {
@@ -97,7 +95,7 @@ const ProductView = () => {
       if (existingProduct) {
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
@@ -114,15 +112,11 @@ const ProductView = () => {
         `http://127.0.0.1:8000/api/products/${productId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to delete product");
-      }
+      if (!response.ok) throw new Error("Failed to delete product");
 
       setProducts((currentProducts) =>
         currentProducts.filter((product) => product.id !== productId)
@@ -136,22 +130,21 @@ const ProductView = () => {
     const authToken = localStorage.getItem("authToken");
 
     if (!authToken) {
-      setError("Authentication token missing. Please log in to purchase.");
+      setError("Authentication token missing. Please log in.");
       navigate("/");
       return;
     }
 
-    
     if (cartItems.length === 0) {
-      setError("Your cart is empty. Please add items before purchasing.");
+      setError("Your cart is empty.");
       return;
     }
 
     const payload = {
-      cart_items: cartItems.map(item => ({
+      cart_items: cartItems.map((item) => ({
         product_id: item.id,
-        quantity: item.quantity
-      }))
+        quantity: item.quantity,
+      })),
     };
 
     try {
@@ -159,44 +152,169 @@ const ProductView = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(payload),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to purchase products.");
+        throw new Error(data.message || "Failed to purchase products.");
       }
 
+      // ✅ success
       setIsSuccess(true);
       setError("");
-      setCartItems([]); 
-    
-      setTimeout(() => {
-        setIsSuccess(false);
-         window.location.reload()
-      }, 3000);
+      setCartItems([]);
+      fetchProducts();
 
+      // ✅ show low stock modal if needed
+      if (data.low_stock_notifications?.length) {
+        setLowStockMessages(data.low_stock_notifications);
+        setShowLowStockModal(true);
+      }
 
+      setTimeout(() => setIsSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
     }
   };
 
   const handleQuantityChange = (productId, value) => {
-    const newQuantity = Math.max(0, parseInt(value) || 0);
-    setCartItems(prevCart => prevCart.map(item =>
-      item.id === productId ? { ...item, quantity: newQuantity } : item
-    ));
+    const newQuantity = Math.max(1, parseInt(value) || 1);
+    setCartItems((prevCart) =>
+      prevCart.map((item) =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      )
+    );
   };
-  
+
   const handleRemoveFromCart = (productId) => {
-    setCartItems(prevCart => prevCart.filter(item => item.id !== productId));
+    setCartItems((prevCart) =>
+      prevCart.filter((item) => item.id !== productId)
+    );
+  };
+
+  const updateProduct = async (product) => {
+    const authToken = localStorage.getItem("authToken");
+
+    if (!authToken) {
+      setError("Authentication required.");
+      navigate("/");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("product_name", product.product_name || "");
+      formData.append("category_name", product.category_name || "");
+      formData.append("description", product.description || "");
+      formData.append("price", product.price || 0);
+      formData.append("cost", product.cost || 0);
+      formData.append("stocks[quantity]", product.stocks?.quantity || 0);
+      formData.append("expiration_date", product.expiration_date || "");
+
+      if (product.imageFile) {
+        formData.append("image", product.imageFile);
+      }
+
+      formData.append("_method", "PUT");
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/products/${product.id}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${authToken}` },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update product");
+      }
+
+      const updatedData = await response.json();
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? updatedData.product ?? updatedData : p
+        )
+      );
+
+      setIsSuccess(true);
+      setError("");
+      setShowUpdateModal(false);
+      setTimeout(() => setIsSuccess(false), 3000);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div className="container-fluid py-4 bg-white">
+      {isSuccess && (
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          tabIndex="-1"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="successTitle"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-0 pb-0 justify-content-center">
+                <h5
+                  className="modal-title fs-4 fw-bold text-success"
+                  id="successTitle"
+                >
+                  Success!
+                </h5>
+              </div>
+              <div className="modal-body text-center pt-2">
+                <p id="successDesc">Successfully Purchase.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLowStockModal && (
+        <div className="modal fade show" style={{ display: "block" }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-warning">
+                <h5 className="modal-title fw-bold text-dark">
+                  ⚠️ Low Stock Notice
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowLowStockModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <ul>
+                  {lowStockMessages.map((msg, i) => (
+                    <li key={i}>{msg}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowLowStockModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="row">
         <div className="col-md-9">
           <h2 className="mb-4 text-center">Products</h2>
@@ -210,8 +328,6 @@ const ProductView = () => {
             />
           </div>
 
-          {error && <div className="alert alert-danger">{error}</div>}
-
           {(isLoading || isSearching) && (
             <div className="flex justify-center items-center py-5 text-lg text-blue-500">
               <h4 className="text-center">Loading....</h4>
@@ -224,15 +340,12 @@ const ProductView = () => {
             </div>
           )}
 
-          <div
-            className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4"
-            style={{ backgroundColor: "#EEEEEE" }}
-          >
+          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
             {products.map((p) => (
               <div className="col" key={p.id}>
                 <div
                   className="card h-100 shadow-sm border-0 rounded-3 cursor-pointer"
-                  onClick={() => handleAddToCart(p)} 
+                  onClick={() => handleAddToCart(p)}
                   style={{ cursor: "pointer" }}
                 >
                   {p.image ? (
@@ -240,10 +353,7 @@ const ProductView = () => {
                       src={`http://127.0.0.1:8000/storage/${p.image}`}
                       className="card-img-top"
                       alt={p.product_name}
-                      style={{
-                        height: "160px",
-                        objectFit: "contain",
-                      }}
+                      style={{ height: "160px", objectFit: "contain" }}
                     />
                   ) : (
                     <div
@@ -267,7 +377,14 @@ const ProductView = () => {
                   </div>
 
                   <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                    <button className="btn btn-sm btn-outline-primary">
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProduct(p);
+                        setShowUpdateModal(true);
+                      }}
+                    >
                       Update
                     </button>
                     <button
@@ -288,7 +405,6 @@ const ProductView = () => {
 
         <div className="col-md-3 border-start">
           <h4>🛒 Cart ({cartItems.length})</h4>
-          {isSuccess && <div className="alert alert-success mt-3">Purchase successful!</div>}
           {cartItems.length === 0 ? (
             <p className="text-muted">Your cart is empty.</p>
           ) : (
@@ -307,7 +423,9 @@ const ProductView = () => {
                       className="form-control form-control-sm me-2"
                       style={{ width: "60px" }}
                       value={item.quantity}
-                      onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                      onChange={(e) =>
+                        handleQuantityChange(item.id, e.target.value)
+                      }
                     />
                     <button
                       className="btn btn-sm btn-outline-danger"
@@ -330,6 +448,137 @@ const ProductView = () => {
           )}
         </div>
       </div>
+
+      {showUpdateModal && selectedProduct && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Update Product</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowUpdateModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Product Name"
+                  value={selectedProduct.product_name}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      product_name: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Category"
+                  value={selectedProduct.category_name || ""}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      category_name: e.target.value,
+                    })
+                  }
+                />
+                <textarea
+                  className="form-control mb-2"
+                  placeholder="Description"
+                  value={selectedProduct.description}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      description: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Price"
+                  value={selectedProduct.price}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      price: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Cost"
+                  value={selectedProduct.cost || ""}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      cost: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Quantity"
+                  value={selectedProduct.stocks?.quantity || 0}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      stocks: {
+                        ...selectedProduct.stocks,
+                        quantity: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <input
+                  type="date"
+                  className="form-control mb-2"
+                  value={selectedProduct.expiration_date || ""}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      expiration_date: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  type="file"
+                  className="form-control mb-2"
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      imageFile: e.target.files[0],
+                    })
+                  }
+                />
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowUpdateModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => updateProduct(selectedProduct)}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

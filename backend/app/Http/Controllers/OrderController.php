@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Order_item;
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,22 +18,20 @@ class OrderController extends Controller
     public function purchaseProducts(Request $request)
     {
         try {
-
             $validatedData = $request->validate([
                 'cart_items' => 'required|array|min:1',
                 'cart_items.*.product_id' => 'required|uuid|exists:products,id',
                 'cart_items.*.quantity' => 'required|integer|min:1',
             ]);
 
-
             $user = $request->user();
-
 
             DB::beginTransaction();
 
             $totalPrice = 0;
             $orderItems = [];
-
+            $salesRecords = [];
+            $lowStockNotifications = [];
 
             foreach ($validatedData['cart_items'] as $item) {
                 $product = Product::with('stocks')->findOrFail($item['product_id']);
@@ -45,8 +45,9 @@ class OrderController extends Controller
                     ], Response::HTTP_BAD_REQUEST);
                 }
 
+                $lineTotal = $product->price * $quantity;
+                $totalPrice += $lineTotal;
 
-                $totalPrice += $product->price * $quantity;
                 $orderItems[] = [
                     'product_id' => $product->id,
                     'quantity' => $quantity,
@@ -55,8 +56,30 @@ class OrderController extends Controller
                     'updated_at' => now(),
                 ];
 
+                $salesRecords[] = [
+                    'product' => $product->product_name,
+                    'amount' => $lineTotal,
+                    'date' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
 
                 $product->stocks->decrement('quantity', $quantity);
+
+                if ($product->stocks->quantity < 5) {
+                    $message = 'Stock of ' . $product->product_name . ' is low (only ' . $product->stocks->quantity . ' left).';
+
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'title' => $product->product_name,
+                        'message' => $message,
+                        'read' => false,
+                    ]);
+
+
+                    $lowStockNotifications[] = $message;
+                }
             }
 
 
@@ -65,15 +88,19 @@ class OrderController extends Controller
                 'total_price' => $totalPrice,
             ]);
 
-
             $order->orderItems()->createMany($orderItems);
 
+
+            foreach ($salesRecords as $sale) {
+                Sale::create($sale);
+            }
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Purchase completed successfully.',
-                'order' => $order->load('orderItems.products')
+                'order' => $order->load('orderItems.product'),
+                'low_stock_notifications' => $lowStockNotifications,
             ], Response::HTTP_CREATED);
         } catch (ValidationException $e) {
             DB::rollBack();
@@ -90,20 +117,10 @@ class OrderController extends Controller
         }
     }
 
-    public function customerOrders($userId)
-    {
-
-        $user = User::with(['orders' => function ($query) {
-            $query->latest();
-        }])->find($userId);
-
-        return $user;
-    }
-
     public function totalSales()
     {
-        $totalSales = DB::table('orders')
-            ->sum('total_price');
+
+        $totalSales = Sale::sum('amount');
 
         return response()->json([
             'total_sales' => $totalSales,
@@ -112,18 +129,18 @@ class OrderController extends Controller
 
     public function totalRevenue()
     {
-        $totalSales = DB::table('orders')->sum('total_price');
 
-        $totalCostOfSold = DB::table('order_items')
-                        ->join('products', 'order_items.product_id', '=', 'products.id')
-                        ->sum(DB::raw('order_items.quantity * products.cost'));
+        $totalSales = Sale::sum('amount');
+
+
+        $totalCostOfSold = DB::table('sales')
+            ->join('products', 'sales.product', '=', 'products.product_name')
+            ->sum(DB::raw('products.cost'));
 
         $revenue = $totalSales - $totalCostOfSold;
 
         return response()->json([
-            'revenue' => $revenue
+            'revenue' => $revenue,
         ]);
     }
-
-    
 }

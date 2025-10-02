@@ -9,7 +9,7 @@ const Reports = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Fetch Total Sales
+
   useEffect(() => {
     const fetchTotalSales = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -40,7 +40,7 @@ const Reports = () => {
     fetchTotalSales();
   }, [navigate]);
 
-  // ✅ Fetch Revenue
+  
   useEffect(() => {
     const fetchRevenue = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -64,7 +64,7 @@ const Reports = () => {
     fetchRevenue();
   }, []);
 
-  // ✅ Fetch Low Stock Items
+  
   useEffect(() => {
     const fetchLowStock = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -118,7 +118,7 @@ const Reports = () => {
 
   return (
     <div className="d-flex flex-column p-3 rounded shadow-sm" style={{backgroundColor: "#50589C"}}>
-      {/* Back Button */}
+      
       <div className="mb-3">
         <button
           className="btn btn-dark fw-semibold"
@@ -128,10 +128,10 @@ const Reports = () => {
         </button>
       </div>
 
-      {/* Error Message */}
+     
       {error && <div className="text-danger fw-bold">{error}</div>}
 
-      {/* Sales & Revenue */}
+     
       <div className="d-flex flex-wrap gap-3 mb-4">
         <div className="card p-3 shadow-sm flex-fill text-center">
           <h5>Total Sales</h5>
@@ -148,7 +148,7 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Low Stock Items */}
+      
       <div className="card p-3 shadow-sm mb-4">
         <h5 className="fw-bold text-danger">⚠️ Low Stock Items</h5>
         {lowStock.length > 0 ? (
@@ -170,7 +170,7 @@ const Reports = () => {
         )}
       </div>
 
-      {/* Top Selling Products */}
+     
       <div className="card p-3 shadow-sm">
         <h5 className="fw-bold text-success">🔥 Top Selling Products</h5>
         {topProducts.length > 0 ? (

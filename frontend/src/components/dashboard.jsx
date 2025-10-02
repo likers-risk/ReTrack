@@ -35,7 +35,7 @@ const Dashboard = () => {
       className="d-flex flex-column"
       style={{ minHeight: "100vh", backgroundColor: "#3C467B" }}
     >
-      {/* Header */}
+      
       <header
         className="d-flex justify-content-between align-items-center shadow-sm px-4 py-3"
         style={{ backgroundColor: "white" }}
@@ -73,13 +73,13 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Body */}
+      
       <div className="d-flex flex-row flex-grow-1">
-        {/* Sidebar */}
+        
         <div
-          className="d-flex flex-column p-3 sticky-top gap-3 shadow rounded"
+          className="d-flex flex-column p-3 sticky-top gap-5 shadow rounded"
           style={{
-            height: "100%",
+            height: "80vh",
             width: isCollapsed ? "70px" : "200px",
             backgroundColor: "#f8f9fa",
             transition: "width 0.3s ease",
@@ -127,7 +127,7 @@ const Dashboard = () => {
           {error && <div className="text-danger mt-2 small">{error}</div>}
         </div>
 
-        {/* Main Content */}
+       
         <div
           className="flex-grow-1 p-4 overflow-auto"
           style={{ backgroundColor: "#3C467B" }}

@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +17,7 @@ Route::prefix('v1')->group( function () {
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::post('/logout',[UserController::class, 'logout']);
-    Route::apiResource('/products',ProductController::class);
+    Route::apiResource('products',ProductController::class);
     Route::post('/purchase',[OrderController::class, 'purchaseProducts']);
     Route::get('/orders/{id}',[OrderController::class, 'customerOrders']);
     Route::get('/search-product',[ProductController::class, 'searchProduct']);
@@ -23,6 +25,19 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('/total-sales',[OrderController::class, 'totalSales']);
     Route::get('/sales-revenue',[OrderController::class, 'totalRevenue']);
     Route::post('/edit-profile',[UserController::class, 'updateProfile']);
+    Route::get('/sales', [SaleController::class, 'index']);
+    Route::get('/sales/totals', [SaleController::class, 'totals']);
+    Route::post('/sales', [SaleController::class, 'store']);
+    Route::get('/sales/{id}', [SaleController::class, 'show']);
+    Route::put('/sales/{id}', [SaleController::class, 'update']);
+    Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::put('/notifications/{id}/toggle-read', [NotificationController::class, 'toggleRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+    Route::delete('notifications/clear-all', [NotificationController::class, 'clearAll']);
+    Route::get('/low-stock', [ProductController::class, 'lowStock']);
+    Route::get('/top-products', [ProductController::class, 'topProducts']);
+
 });
 
 

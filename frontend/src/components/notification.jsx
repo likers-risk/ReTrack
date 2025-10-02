@@ -9,7 +9,7 @@ const Notification = () => {
 
   const navigateDashboard = () => navigate("/dashboard");
 
-  // Fetch notifications
+  
   useEffect(() => {
     const fetchNotifications = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -43,7 +43,7 @@ const Notification = () => {
     fetchNotifications();
   }, [navigate]);
 
-  // Mark notification as read/unread
+ 
   const toggleRead = async (id, readStatus) => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
@@ -72,7 +72,7 @@ const Notification = () => {
     }
   };
 
-  // Delete notification
+  
   const deleteNotification = async (id) => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
@@ -94,22 +94,26 @@ const Notification = () => {
     }
   };
 
-  // Clear all notifications
+  
   const clearAll = async () => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/notifications/clear-all`,
+        "http://127.0.0.1:8000/api/notifications/clear-all",
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${authToken}` },
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+          },
         }
       );
 
       if (!response.ok) throw new Error("Failed to clear notifications.");
 
+      
       setNotifications([]);
     } catch (err) {
       setError(err.message);
@@ -118,7 +122,7 @@ const Notification = () => {
 
   return (
     <div className="container mt-3">
-      {/* Header actions */}
+     
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button
           className="btn btn-dark fw-semibold"
@@ -135,11 +139,11 @@ const Notification = () => {
         )}
       </div>
 
-      {/* Status messages */}
+     
       {loading && <p>Loading notifications...</p>}
       {error && <p className="text-danger">{error}</p>}
 
-      {/* Notifications list */}
+      
       {!loading && (
         <>
           <h4 className="fw-bold mb-3">

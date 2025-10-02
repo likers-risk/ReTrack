@@ -9,7 +9,7 @@ const ManageOrders = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch orders
+  
   useEffect(() => {
     const fetchOrders = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -37,7 +37,7 @@ const ManageOrders = () => {
     fetchOrders();
   }, [navigate]);
 
-  // ✅ Update Order Status
+  
   const updateOrderStatus = async (orderId, newStatus) => {
     const authToken = localStorage.getItem("authToken");
     try {
@@ -65,7 +65,7 @@ const ManageOrders = () => {
     }
   };
 
-  // ❌ Cancel Order
+  
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
 
@@ -87,7 +87,7 @@ const ManageOrders = () => {
     }
   };
 
-  // 📥 Export Orders as PDF
+  
   const generateOrdersPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
