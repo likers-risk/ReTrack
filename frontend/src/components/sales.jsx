@@ -120,8 +120,8 @@ const Sales = () => {
                   .toLocaleString()}
               </p>
             </div>
-            <div className="card p-3 flex-fill bg-warning text-dark">
-              <h5>Number of Orders</h5>
+            <div className="card p-3 flex-fill bg-warning text-white">
+              <h5>Item purchase</h5>
               <p className="fs-4">{sales.length}</p>
             </div>
           </div>

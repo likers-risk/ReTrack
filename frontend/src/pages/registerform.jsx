@@ -17,11 +17,20 @@ export default function Register() {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/register", {
+      const authToken = localStorage.getItem("authToken");
+
+
+      if(!authToken) {
+        console.log("Unauthenticated.Please Login");
+        navigate('/');
+      }
+
+      const response = await fetch("http://localhost:8000/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization : `Bearer ${authToken}`
         },
         body: JSON.stringify({
           username: username,
@@ -57,7 +66,7 @@ export default function Register() {
   return (
     <div
       className="d-flex align-items-center justify-content-center vh-100  p-4"
-      style={{ backgroundColor: "darkblue" }}
+      style={{ backgroundColor: "#50589C" }}
     >
       <div className="card shadow-lg p-4 col-12 col-md-8 col-lg-5">
         <div className="card-body">

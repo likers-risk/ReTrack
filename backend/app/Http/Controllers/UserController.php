@@ -18,8 +18,10 @@ class UserController extends Controller
 
         $user = $request->user();
 
-        if(!$user instanceof User) {
-            return response()->json(['message' => 'Unauthorized'],403);
+        if($user->role !== 'Owner') {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ],403);
         }
 
 
@@ -50,11 +52,14 @@ class UserController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            'password' => 'required'
+            'username' => 'required|string',
+            'password' => 'required',
+            'role' => 'required'
         ]);
 
-        $user = User::where('username', $request->username)->first();
+        $user = User::where('username', $request->username)
+                    ->where('role', $request->role)
+                    ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([

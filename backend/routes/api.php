@@ -10,12 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group( function () {
-    Route::post('/register', [UserController::class, 'register']);
     Route::post('/login',[UserController::class, 'login']);
 });
 
 
 Route::middleware('auth:sanctum')->group( function () {
+    Route::post('/register', [UserController::class, 'register']);     
     Route::post('/logout',[UserController::class, 'logout']);
     Route::apiResource('products',ProductController::class);
     Route::post('/purchase',[OrderController::class, 'purchaseProducts']);
@@ -37,7 +37,6 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::delete('notifications/clear-all', [NotificationController::class, 'clearAll']);
     Route::get('/low-stock', [ProductController::class, 'lowStock']);
     Route::get('/top-products', [ProductController::class, 'topProducts']);
-
 });
 
 

@@ -245,9 +245,11 @@ const ProductView = () => {
       );
 
       setIsSuccess(true);
+      window.location.reload();
       setError("");
       setShowUpdateModal(false);
       setTimeout(() => setIsSuccess(false), 3000);
+      
     } catch (err) {
       setError(err.message);
     }

@@ -8,6 +8,7 @@ const EditProfile = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [userRole, setUserRole] = useState(""); // ✅ store logged-in role here
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,11 +17,12 @@ const EditProfile = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  
   useEffect(() => {
     const fetchUser = async () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
+      const storedRole = localStorage.getItem("role");
+      setUserRole(storedRole); // ✅ set once from localStorage
 
       if (!authToken || !userId) {
         navigate("/");
@@ -51,7 +53,6 @@ const EditProfile = () => {
     fetchUser();
   }, [navigate]);
 
-  
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
 
@@ -107,7 +108,7 @@ const EditProfile = () => {
         onSubmit={handleUpdateProfile}
         className="bg-white p-4 shadow rounded"
       >
-       
+        {/* Profile Image Upload */}
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
             src={
@@ -128,7 +129,7 @@ const EditProfile = () => {
           />
         </div>
 
-       
+        {/* Username */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -139,7 +140,7 @@ const EditProfile = () => {
           />
         </div>
 
-       
+        {/* Email */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -150,6 +151,7 @@ const EditProfile = () => {
           />
         </div>
 
+        {/* Role */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
           <select
@@ -160,10 +162,11 @@ const EditProfile = () => {
             <option value="Admin">Admin</option>
             <option value="Staff">Staff</option>
             <option value="Super_Admin">Super Admin</option>
+            <option value="Owner">Owner</option>
           </select>
         </div>
 
-       
+        {/* Passwords */}
         <div className="mb-3">
           <label className="form-label fw-semibold">New Password</label>
           <div className="input-group">
@@ -183,7 +186,6 @@ const EditProfile = () => {
           </div>
         </div>
 
-       
         <div className="mb-3">
           <label className="form-label fw-semibold">Confirm Password</label>
           <input
@@ -194,13 +196,12 @@ const EditProfile = () => {
           />
         </div>
 
-      
         <button type="submit" className="btn btn-primary w-100 fw-semibold">
           Save Changes
         </button>
       </form>
 
-      
+      {/* Profile Info */}
       <div className="bg-light p-3 mt-3 rounded">
         <h6 className="fw-bold">Profile Info</h6>
         <p>📛 Role: {user.role}</p>
@@ -211,18 +212,20 @@ const EditProfile = () => {
         )}
       </div>
 
-     
+      {/* Actions */}
       <div className="d-grid gap-2 mt-4">
         <Link to="/dashboard" className="btn btn-outline-secondary">
           📊 Back to Dashboard
         </Link>
-        <Link
-          to="/register"
-          className="btn btn-lg text-white"
-          style={{ background: "darkblue" }}
-        >
-          👤 Register New Admin/Staff
-        </Link>
+        {userRole === "Owner" && (
+          <Link
+            to="/register"
+            className="btn btn-lg text-white"
+            style={{ background: "darkblue" }}
+          >
+            👤 Register New Admin/Staff
+          </Link>
+        )}
       </div>
     </div>
   );

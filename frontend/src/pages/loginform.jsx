@@ -5,6 +5,7 @@ import logo from "../assets/Retrack.png";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [Token, setToken] = useState("");
@@ -26,6 +27,7 @@ export default function Login() {
         body: JSON.stringify({
           username: username,
           password: password,
+          role: role,
         }),
       });
 
@@ -54,7 +56,10 @@ export default function Login() {
   };
 
   return (
-    <div className="d-flex" style={{backgroundColor: "#3C467B", height: "100vh"}}>
+    <div
+      className="d-flex"
+      style={{ backgroundColor: "#3C467B", height: "100vh" }}
+    >
       <div className="container mt-5">
         <div className="row justify-content-center">
           <div className="col-md-6 col-lg-4">
@@ -112,6 +117,27 @@ export default function Login() {
                       placeholder="Password"
                       onChange={(e) => setPassword(e.target.value)}
                     />
+                  </div>
+
+                  <div className="mb-3 d-flex flex-row">
+                    <div className="mr-5">
+                      <label htmlFor="role">Role:</label>
+                    </div>
+                    <div className="ml-5 rounded-0">
+                      <select
+                        id="role"
+                        name="role"
+                        className="rounded-2"
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        required
+                      >
+                        <option value="">Select</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Owner">Owner</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="d-grid gap-2">
