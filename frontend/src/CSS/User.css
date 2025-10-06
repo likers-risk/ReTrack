@@ -1,0 +1,10 @@
+.user-info {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-info:hover {
+  background-color: rgba(13, 110, 253, 0.1); /* light bootstrap blue */
+  border-radius: 10px;
+  transform: translateY(-2px);
+}

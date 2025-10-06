@@ -256,7 +256,7 @@ const ProductView = () => {
   };
 
   return (
-    <div className="container-fluid py-4 bg-white">
+    <div className="container-fluid py-4 bg-white rounded">
       {isSuccess && (
         <div
           className="modal fade show"

@@ -127,7 +127,7 @@ export default function Login() {
                       <select
                         id="role"
                         name="role"
-                        className="rounded-2"
+                        className="rounded-2 text-white" style={{backgroundColor: "#50589C"}}
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         required

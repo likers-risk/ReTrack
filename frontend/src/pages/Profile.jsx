@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
+import '../CSS/User.css';
+import '../CSS/Profile.css'
+
 
 const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
@@ -47,7 +50,6 @@ const Profile = ({ userId }) => {
   }, [userId, navigate]);
 
   const handleSignOut = async () => {
-
     try {
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
@@ -81,9 +83,9 @@ const Profile = ({ userId }) => {
 
   const handleNotification = () => navigate("notification");
   const handleReport = () => navigate("total-sales");
-  const handleAdminInfo = () => navigate("admin-information");
-  const handleEditProfile = () => navigate("edit-profile");
-  const handleActivityLog = () => navigate("activity-log");
+  const handleAdminInfo = () => navigate("profile");
+  const handleEditProfile = () => navigate("profile");
+ 
   const handleAddProduct = () => navigate("/dashboard/add-item");
   const handleViewStock = () => navigate("/dashboard/shopping");
 
@@ -103,13 +105,12 @@ const Profile = ({ userId }) => {
 
   return (
     <div className="d-flex flex-row gap-5">
-      {/* Sidebar */}
       <div
         className="d-flex flex-column justify-content-between p-3 sticky-top shadow"
-        style={{ height: "100vh", }}
+        style={{ height: "100vh" }}
       >
-        {/* User Info */}
-        <div className="d-flex flex-column" onClick={handleAdminInfo}>
+        
+        <div className="d-flex flex-column user-info p-2" onClick={handleAdminInfo}>
           {user.image ? (
             <img
               src={`http://127.0.0.1:8000/storage/${user.image}`}
@@ -128,7 +129,7 @@ const Profile = ({ userId }) => {
           <p className="fw-semibold">{user.email}</p>
         </div>
 
-        {/* Buttons */}
+       
         <div className="d-flex flex-column gap-2">
           <button
             className="btn d-flex align-items-center profile-button"
@@ -149,13 +150,6 @@ const Profile = ({ userId }) => {
             onClick={handleNotification}
           >
             <i className="fa-solid fa-bell text-black me-2"></i>Notification
-          </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleActivityLog}
-          >
-            <i className="fa fa-history me-2"></i>Activity Log
           </button>
 
           <button
@@ -190,8 +184,10 @@ const Profile = ({ userId }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-grow-1 p-3 overflow-auto" style={{backgroundColor: "#3C467B"}}>
+      <div
+        className="flex-grow-1 p-3 overflow-auto"
+        style={{ backgroundColor: "#3C467B" }}
+      >
         <Outlet />
       </div>
     </div>

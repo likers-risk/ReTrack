@@ -12,6 +12,7 @@ import Reports from "./components/Report";
 import ManageOrders from "./pages/ManageOrder";
 import EditProfile from "./components/EditProfile";
 
+
 function App() {
   return (
     <>
@@ -27,10 +28,10 @@ function App() {
             <Route path="shopping" element={<ProductView />} />
           </Route>
           <Route path="/profile" element={<Profile />}>
-            <Route index element = {<Reports/>}/>
+            <Route index element={<Reports />} />
             <Route path="total-sales" element={<Reports />} />
             <Route path="notification" element={<Notification />} />
-            <Route path="edit-profile" element={<EditProfile />} />
+            <Route path="profile" element={<EditProfile />} />
           </Route>
           <Route path="dashboard/orders" element={<ManageOrders />} />
         </Routes>

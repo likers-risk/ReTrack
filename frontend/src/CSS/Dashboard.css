@@ -1,0 +1,17 @@
+.sidebar-link {
+  color: #343a40; 
+}
+
+.sidebar-link:hover {
+  background-color: #3C467B; 
+  color: white !important;   
+  transform: translateX(5px); 
+}
+
+.sidebar-link i {
+  transition: transform 0.3s ease;
+}
+
+.sidebar-link:hover i {
+  transform: scale(1.2); 
+}

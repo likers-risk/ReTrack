@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Order_item;
 use App\Models\Product;
 use App\Models\User;
@@ -18,10 +19,10 @@ class UserController extends Controller
 
         $user = $request->user();
 
-        if($user->role !== 'Owner') {
+        if ($user->role !== 'Owner') {
             return response()->json([
                 'message' => 'Unauthorized.'
-            ],403);
+            ], 403);
         }
 
 
@@ -58,8 +59,8 @@ class UserController extends Controller
         ]);
 
         $user = User::where('username', $request->username)
-                    ->where('role', $request->role)
-                    ->first();
+            ->where('role', $request->role)
+            ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -68,6 +69,7 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('user-auth-token')->plainTextToken;
+
 
         return response()->json([
             'message' => 'Login Successfully',
@@ -108,7 +110,7 @@ class UserController extends Controller
             'image' => 'nullable|image|mimes:png,jpeg,gif,svg,webp|max:2048'
         ]);
 
-       
+
         if ($request->hasFile('image')) {
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
@@ -128,4 +130,6 @@ class UserController extends Controller
             'User' => $user
         ]);
     }
+
+    
 }

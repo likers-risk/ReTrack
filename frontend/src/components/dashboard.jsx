@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import retrackLogo from "../assets/Retrack.png";
+import '../CSS/Dashboard.css'
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +37,6 @@ const Dashboard = () => {
       className="d-flex flex-column"
       style={{ minHeight: "100vh", backgroundColor: "#3C467B" }}
     >
-      
       <header
         className="d-flex justify-content-between align-items-center shadow-sm px-4 py-3"
         style={{ backgroundColor: "white" }}
@@ -73,9 +74,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      
       <div className="d-flex flex-row flex-grow-1">
-        
         <div
           className="d-flex flex-column p-3 sticky-top gap-5 shadow rounded"
           style={{
@@ -127,7 +126,6 @@ const Dashboard = () => {
           {error && <div className="text-danger mt-2 small">{error}</div>}
         </div>
 
-       
         <div
           className="flex-grow-1 p-4 overflow-auto"
           style={{ backgroundColor: "#3C467B" }}
@@ -139,11 +137,10 @@ const Dashboard = () => {
   );
 };
 
-
 const SidebarLink = ({ to, icon, label, collapsed }) => (
   <Link
     to={to}
-    className="d-flex align-items-center fw-semibold text-decoration-none text-dark fs-6 py-2 px-2 rounded"
+    className="sidebar-link d-flex align-items-center fw-semibold text-decoration-none text-dark fs-6 py-2 px-2 rounded"
     title={collapsed ? label : ""}
     style={{
       whiteSpace: "nowrap",
@@ -152,7 +149,10 @@ const SidebarLink = ({ to, icon, label, collapsed }) => (
       transition: "all 0.3s ease",
     }}
   >
-    <i className={`fa-solid ${icon}`} style={{ fontSize: "20px", minWidth: "30px" }} />
+    <i
+      className={`fa-solid ${icon}`}
+      style={{ fontSize: "20px", minWidth: "30px" }}
+    />
     {!collapsed && <span>{label}</span>}
   </Link>
 );
