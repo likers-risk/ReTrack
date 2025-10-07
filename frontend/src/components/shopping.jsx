@@ -18,6 +18,11 @@ const ProductView = () => {
 
   const navigate = useNavigate();
 
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
@@ -164,13 +169,11 @@ const ProductView = () => {
         throw new Error(data.message || "Failed to purchase products.");
       }
 
-      // ✅ success
       setIsSuccess(true);
       setError("");
       setCartItems([]);
       fetchProducts();
 
-      // ✅ show low stock modal if needed
       if (data.low_stock_notifications?.length) {
         setLowStockMessages(data.low_stock_notifications);
         setShowLowStockModal(true);
@@ -249,7 +252,6 @@ const ProductView = () => {
       setError("");
       setShowUpdateModal(false);
       setTimeout(() => setIsSuccess(false), 3000);
-      
     } catch (err) {
       setError(err.message);
     }
@@ -441,12 +443,20 @@ const ProductView = () => {
             </ul>
           )}
           {cartItems.length > 0 && (
-            <button
-              className="btn btn-primary w-100"
-              onClick={buyProductsInCart}
-            >
-              Buy Now
-            </button>
+            <>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Total:</h5>
+                <h5 className="mb-0 text-black fw-bold">
+                  ₱{totalPrice.toFixed(2)}
+                </h5>
+              </div>
+              <button
+                className="btn btn-primary w-100"
+                onClick={buyProductsInCart}
+              >
+                Buy Now
+              </button>
+            </>
           )}
         </div>
       </div>

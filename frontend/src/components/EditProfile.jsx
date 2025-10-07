@@ -8,7 +8,7 @@ const EditProfile = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
-  const [userRole, setUserRole] = useState(""); // ✅ store logged-in role here
+  const [userRole, setUserRole] = useState(""); 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +22,7 @@ const EditProfile = () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
       const storedRole = localStorage.getItem("role");
-      setUserRole(storedRole); // ✅ set once from localStorage
+      setUserRole(storedRole); 
 
       if (!authToken || !userId) {
         navigate("/");
@@ -108,7 +108,7 @@ const EditProfile = () => {
         onSubmit={handleUpdateProfile}
         className="bg-white p-4 shadow rounded"
       >
-        {/* Profile Image Upload */}
+       
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
             src={
@@ -129,7 +129,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Username */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -140,7 +140,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Email */}
+      
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -151,7 +151,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Role */}
+      
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
           <select
@@ -201,7 +201,7 @@ const EditProfile = () => {
         </button>
       </form>
 
-      {/* Profile Info */}
+      
       <div className="bg-light p-3 mt-3 rounded">
         <h6 className="fw-bold">Profile Info</h6>
         <p>📛 Role: {user.role}</p>

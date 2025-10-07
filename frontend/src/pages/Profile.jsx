@@ -2,13 +2,39 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 import '../CSS/User.css';
-import '../CSS/Profile.css'
+import '../CSS/Profile.css';
 
+// ✅ Loader Component
+const FullScreenLoader = ({ message = "Loading..." }) => {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "#6E8CFB",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+        transition: "opacity 0.3s ease",
+      }}
+    >
+      <div className="spinner-border text-light" role="status" style={{ width: "3rem", height: "3rem" }}>
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
+};
 
 const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,16 +49,13 @@ const Profile = ({ userId }) => {
       }
 
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/user-profile/${userId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await fetch(`http://127.0.0.1:8000/api/user-profile/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch user credentials.");
@@ -40,9 +63,13 @@ const Profile = ({ userId }) => {
 
         const data = await response.json();
         setUser(data.user);
+
+        // Add a small delay for smoother loader transition
+        setTimeout(() => setIsLoading(false), 600);
       } catch (err) {
         console.error("Fetch user error:", err);
         setError(err.message);
+        setIsLoading(false);
       }
     };
 
@@ -51,6 +78,8 @@ const Profile = ({ userId }) => {
 
   const handleSignOut = async () => {
     try {
+      setIsLoggingOut(true);
+
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
         setError("No authentication token found.");
@@ -70,14 +99,20 @@ const Profile = ({ userId }) => {
       if (response.ok) {
         localStorage.removeItem("authToken");
         localStorage.removeItem("username");
-        navigate("/");
+        localStorage.removeItem("userId");
+
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Logout failed.");
+        setIsLoggingOut(false);
       }
     } catch (err) {
       console.error("Logout error:", err);
       setError("Failed to connect to the server for logout. Please try again.");
+      setIsLoggingOut(false);
     }
   };
 
@@ -85,7 +120,6 @@ const Profile = ({ userId }) => {
   const handleReport = () => navigate("total-sales");
   const handleAdminInfo = () => navigate("profile");
   const handleEditProfile = () => navigate("profile");
- 
   const handleAddProduct = () => navigate("/dashboard/add-item");
   const handleViewStock = () => navigate("/dashboard/shopping");
 
@@ -96,12 +130,12 @@ const Profile = ({ userId }) => {
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-danger text-center mt-5">Error: {error}</div>;
   }
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  
+  if (isLoading) return <FullScreenLoader message="Loading profile..." />;
+  if (isLoggingOut) return <FullScreenLoader message="Signing out..." />;
 
   return (
     <div className="d-flex flex-row gap-5">
@@ -109,7 +143,6 @@ const Profile = ({ userId }) => {
         className="d-flex flex-column justify-content-between p-3 sticky-top shadow"
         style={{ height: "100vh" }}
       >
-        
         <div className="d-flex flex-column user-info p-2" onClick={handleAdminInfo}>
           {user.image ? (
             <img
@@ -129,51 +162,26 @@ const Profile = ({ userId }) => {
           <p className="fw-semibold">{user.email}</p>
         </div>
 
-       
         <div className="d-flex flex-column gap-2">
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleEditProfile}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={handleEditProfile}>
             <i className="fa fa-user-edit me-2"></i>Edit Profile
           </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleReport}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={handleReport}>
             <i className="fa fa-file-alt me-2"></i>Reports
           </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleNotification}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={handleNotification}>
             <i className="fa-solid fa-bell text-black me-2"></i>Notification
           </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleAddProduct}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={handleAddProduct}>
             <i className="fa fa-plus-circle me-2"></i>Add Product
           </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleViewStock}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={handleViewStock}>
             <i className="fa fa-boxes me-2"></i>View Stock
           </button>
-
-          <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={toggleTheme}
-          >
+          <button className="btn d-flex align-items-center profile-button" onClick={toggleTheme}>
             <i className="fa fa-adjust me-2"></i>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
-
           <button
             type="button"
             className="btn d-flex align-items-center profile-button text-danger"
@@ -184,10 +192,7 @@ const Profile = ({ userId }) => {
         </div>
       </div>
 
-      <div
-        className="flex-grow-1 p-3 overflow-auto"
-        style={{ backgroundColor: "#3C467B" }}
-      >
+      <div className="flex-grow-1 p-3 overflow-auto" style={{ backgroundColor: "#3C467B" }}>
         <Outlet />
       </div>
     </div>
