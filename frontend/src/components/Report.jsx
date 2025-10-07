@@ -7,8 +7,8 @@ const Reports = () => {
   const [lowStock, setLowStock] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchTotalSales = async () => {
@@ -31,6 +31,7 @@ const Reports = () => {
 
         if (!response.ok) throw new Error("Failed to get total sales.");
         const data = await response.json();
+        setTimeout(() => setLoading(false), 600);
         setTotalSales(data.total_sales || 0);
       } catch (err) {
         setError(err.message || "Server Error");
@@ -40,18 +41,20 @@ const Reports = () => {
     fetchTotalSales();
   }, [navigate]);
 
-  
   useEffect(() => {
     const fetchRevenue = async () => {
       const authToken = localStorage.getItem("authToken");
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/sales-revenue", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/sales-revenue",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
         if (!response.ok) throw new Error("Error Fetching Revenue");
         const data = await response.json();
@@ -64,7 +67,6 @@ const Reports = () => {
     fetchRevenue();
   }, []);
 
-  
   useEffect(() => {
     const fetchLowStock = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -87,7 +89,6 @@ const Reports = () => {
 
     fetchLowStock();
   }, []);
-
 
   useEffect(() => {
     const fetchTopProducts = async () => {
@@ -116,9 +117,38 @@ const Reports = () => {
     navigate("/dashboard");
   };
 
+  const FullScreenLoader = ({ message = "Loading..." }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+      }}
+    >
+      <div
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "3rem", height: "3rem" }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
+
+  if (loading) return <FullScreenLoader message="Loading profile..." />;
+
   return (
-    <div className="d-flex flex-column p-3 rounded shadow-sm" style={{backgroundColor: "#50589C"}}>
-      
+    <div
+      className="d-flex flex-column p-3 rounded shadow-sm"
+      style={{ backgroundColor: "#50589C" }}
+    >
       <div className="mb-3">
         <button
           className="btn btn-dark fw-semibold"
@@ -128,10 +158,8 @@ const Reports = () => {
         </button>
       </div>
 
-     
       {error && <div className="text-danger fw-bold">{error}</div>}
 
-     
       <div className="d-flex flex-wrap gap-3 mb-4">
         <div className="card p-3 shadow-sm flex-fill text-center">
           <h5>Total Sales</h5>
@@ -148,7 +176,6 @@ const Reports = () => {
         </div>
       </div>
 
-      
       <div className="card p-3 shadow-sm mb-4">
         <h5 className="fw-bold text-danger">⚠️ Low Stock Items</h5>
         {lowStock.length > 0 ? (
@@ -170,7 +197,6 @@ const Reports = () => {
         )}
       </div>
 
-     
       <div className="card p-3 shadow-sm">
         <h5 className="fw-bold text-success">🔥 Top Selling Products</h5>
         {topProducts.length > 0 ? (

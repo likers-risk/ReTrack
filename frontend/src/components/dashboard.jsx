@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import retrackLogo from "../assets/Retrack.png";
-import '../CSS/Dashboard.css'
-
+import "../CSS/Dashboard.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,18 +18,40 @@ const Dashboard = () => {
       navigate("/");
     }
 
-    setIsLoading(false);
+    setTimeout(() => setIsLoading(false), 600);
   }, [navigate]);
 
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
 
-  if (isLoading) {
+  const FullScreenLoader = ({ message = "Loading..." }) => {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100 text-primary">
-        <h4 className="text-center">Loading...</h4>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "#50589C",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          zIndex: 9999,
+          color: "#fff",
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <div
+          className="spinner-border text-light"
+          role="status"
+          style={{ width: "3rem", height: "3rem" }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3 fs-5 fw-semibold">{message}</p>
       </div>
     );
-  }
+  };
+
+  if (isLoading) return <FullScreenLoader message="Loading dashboard..." />;
 
   return (
     <div

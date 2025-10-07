@@ -12,6 +12,7 @@ const AddItems = () => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -22,6 +23,8 @@ const AddItems = () => {
     if (!authToken) {
       console.warn("No authentication. Redirecting to login.");
       navigate("/");
+    } else {
+      setTimeout(() => setLoading(false), 600);
     }
   }, [navigate]);
 
@@ -76,7 +79,32 @@ const AddItems = () => {
       setError("Failed to connect to the server. Please check your network.");
     }
   };
+  const FullScreenLoader = ({ message = "Loading..." }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+      }}
+    >
+      <div
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "3rem", height: "3rem" }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
 
+  if (loading) return <FullScreenLoader message="Loading.." />;
   return (
     <>
       {isVisible && (
@@ -108,7 +136,7 @@ const AddItems = () => {
       )}
 
       <div
-        className="container p-5 d-flex flex-column"
+        className="container p-5 d-flex flex-column rounded"
         style={{ backgroundColor: "white", height: "95vh" }}
       >
         <form onSubmit={handleSubmit}>

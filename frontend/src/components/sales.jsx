@@ -11,7 +11,6 @@ import {
   Legend,
 } from "chart.js";
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,7 +28,8 @@ const Sales = () => {
   const [filterDate, setFilterDate] = useState("");
   const [graphData, setGraphData] = useState({ labels: [], data: [] });
 
-  
+  const [showAll, setShowAll] = useState(false);
+
   useEffect(() => {
     const fetchSales = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -58,7 +58,6 @@ const Sales = () => {
     fetchSales();
   }, []);
 
- 
   const prepareGraph = (salesData) => {
     const sorted = [...salesData].sort(
       (a, b) => new Date(a.date) - new Date(b.date)
@@ -71,11 +70,14 @@ const Sales = () => {
 
   const filteredSales = filterDate
     ? sales.filter(
-        (s) => new Date(s.date).toLocaleDateString() === new Date(filterDate).toLocaleDateString()
+        (s) =>
+          new Date(s.date).toLocaleDateString() ===
+          new Date(filterDate).toLocaleDateString()
       )
     : sales;
 
- 
+  const displayedSales = showAll ? filteredSales : filteredSales.slice(0, 10);
+
   const exportCSV = () => {
     const csv = [
       ["ID", "Product", "Amount", "Date"],
@@ -91,11 +93,39 @@ const Sales = () => {
     link.click();
   };
 
+  const FullScreenLoader = ({ message = "Loading..." }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+      }}
+    >
+      <div
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "3rem", height: "3rem" }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
+
+  if (loading) return <FullScreenLoader message="Loading sales..." />;
   return (
-    <div className="container mt-3" style={{backgroundColor:"white"}}>
+    <div
+      className="container mt-3 rounded"
+      style={{ backgroundColor: "white" }}
+    >
       <h3 className="mb-3">💰 Sales Dashboard</h3>
 
-      {loading && <p>Loading sales...</p>}
       {error && <p className="text-danger">{error}</p>}
 
       {!loading && !error && (
@@ -110,7 +140,8 @@ const Sales = () => {
             <div className="card p-3 flex-fill bg-success text-white">
               <h5>Today's Sales</h5>
               <p className="fs-4">
-                ₱ {sales
+                ₱{" "}
+                {sales
                   .filter(
                     (s) =>
                       new Date(s.date).toLocaleDateString() ===
@@ -126,7 +157,6 @@ const Sales = () => {
             </div>
           </div>
 
-          {/* Filters */}
           <div className="mb-3 d-flex align-items-center gap-2">
             <label htmlFor="filterDate">Filter by date:</label>
             <input
@@ -136,15 +166,20 @@ const Sales = () => {
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
             />
-            <button className="btn btn-secondary" onClick={() => setFilterDate("")}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setFilterDate("")}
+            >
               Reset
             </button>
-            <button className="btn btn-outline-success ms-auto" onClick={exportCSV}>
+            <button
+              className="btn btn-outline-success ms-auto"
+              onClick={exportCSV}
+            >
               Export CSV
             </button>
           </div>
 
-         
           <div className="mb-4">
             <Line
               data={{
@@ -168,7 +203,6 @@ const Sales = () => {
             />
           </div>
 
-          {/* Sales table */}
           <div className="table-responsive">
             <table className="table table-striped table-bordered">
               <thead>
@@ -180,8 +214,8 @@ const Sales = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredSales.length > 0 ? (
-                  filteredSales.map((s) => (
+                {displayedSales.length > 0 ? (
+                  displayedSales.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
                       <td>{s.product}</td>
@@ -198,6 +232,17 @@ const Sales = () => {
                 )}
               </tbody>
             </table>
+
+            {filteredSales.length > 10 && (
+              <div className="text-center mt-2">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? "See Less" : "See More"}
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}

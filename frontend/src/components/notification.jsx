@@ -9,7 +9,6 @@ const Notification = () => {
 
   const navigateDashboard = () => navigate("/dashboard");
 
-  
   useEffect(() => {
     const fetchNotifications = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -36,14 +35,13 @@ const Notification = () => {
       } catch (err) {
         setError(err.message || "Error fetching notifications.");
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 600);
       }
     };
 
     fetchNotifications();
   }, [navigate]);
 
- 
   const toggleRead = async (id, readStatus) => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
@@ -72,7 +70,6 @@ const Notification = () => {
     }
   };
 
-  
   const deleteNotification = async (id) => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
@@ -94,7 +91,6 @@ const Notification = () => {
     }
   };
 
-  
   const clearAll = async () => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return;
@@ -113,16 +109,43 @@ const Notification = () => {
 
       if (!response.ok) throw new Error("Failed to clear notifications.");
 
-      
       setNotifications([]);
     } catch (err) {
       setError(err.message);
     }
   };
 
+  const FullScreenLoader = ({ message = "Loading..." }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+        backdropFilter: "blur(5px)",
+        transition: "opacity 0.3s ease",
+      }}
+    >
+      <div
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "4rem", height: "4rem" }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
+
+  if(loading) return <FullScreenLoader message="Loading notifications..."/>
+
   return (
     <div className="container mt-3">
-     
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button
           className="btn btn-dark fw-semibold"
@@ -139,11 +162,9 @@ const Notification = () => {
         )}
       </div>
 
-     
       {loading && <p>Loading notifications...</p>}
       {error && <p className="text-danger">{error}</p>}
 
-      
       {!loading && (
         <>
           <h4 className="fw-bold mb-3">

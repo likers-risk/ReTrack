@@ -1,39 +1,14 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
-import '../CSS/User.css';
-import '../CSS/Profile.css';
-
-// ✅ Loader Component
-const FullScreenLoader = ({ message = "Loading..." }) => {
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "#6E8CFB",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        zIndex: 9999,
-        color: "#fff",
-        transition: "opacity 0.3s ease",
-      }}
-    >
-      <div className="spinner-border text-light" role="status" style={{ width: "3rem", height: "3rem" }}>
-        <span className="visually-hidden">Loading...</span>
-      </div>
-      <p className="mt-3 fs-5 fw-semibold">{message}</p>
-    </div>
-  );
-};
+import "../CSS/User.css";
+import "../CSS/Profile.css";
 
 const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
@@ -49,13 +24,16 @@ const Profile = ({ userId }) => {
       }
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/user-profile/${userId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/user-profile/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch user credentials.");
@@ -129,11 +107,38 @@ const Profile = ({ userId }) => {
     document.body.style.color = !darkMode ? "#fff" : "#000";
   };
 
+  const FullScreenLoader = ({ message = "Loading..." }) => {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "#50589C",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          zIndex: 9999,
+          color: "#fff",
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <div
+          className="spinner-border text-light"
+          role="status"
+          style={{ width: "3rem", height: "3rem" }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3 fs-5 fw-semibold">{message}</p>
+      </div>
+    );
+  };
+
   if (error) {
     return <div className="text-danger text-center mt-5">Error: {error}</div>;
   }
 
-  
   if (isLoading) return <FullScreenLoader message="Loading profile..." />;
   if (isLoggingOut) return <FullScreenLoader message="Signing out..." />;
 
@@ -143,7 +148,10 @@ const Profile = ({ userId }) => {
         className="d-flex flex-column justify-content-between p-3 sticky-top shadow"
         style={{ height: "100vh" }}
       >
-        <div className="d-flex flex-column user-info p-2" onClick={handleAdminInfo}>
+        <div
+          className="d-flex flex-column user-info p-2"
+          onClick={handleAdminInfo}
+        >
           {user.image ? (
             <img
               src={`http://127.0.0.1:8000/storage/${user.image}`}
@@ -163,22 +171,40 @@ const Profile = ({ userId }) => {
         </div>
 
         <div className="d-flex flex-column gap-2">
-          <button className="btn d-flex align-items-center profile-button" onClick={handleEditProfile}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleEditProfile}
+          >
             <i className="fa fa-user-edit me-2"></i>Edit Profile
           </button>
-          <button className="btn d-flex align-items-center profile-button" onClick={handleReport}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleReport}
+          >
             <i className="fa fa-file-alt me-2"></i>Reports
           </button>
-          <button className="btn d-flex align-items-center profile-button" onClick={handleNotification}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleNotification}
+          >
             <i className="fa-solid fa-bell text-black me-2"></i>Notification
           </button>
-          <button className="btn d-flex align-items-center profile-button" onClick={handleAddProduct}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleAddProduct}
+          >
             <i className="fa fa-plus-circle me-2"></i>Add Product
           </button>
-          <button className="btn d-flex align-items-center profile-button" onClick={handleViewStock}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={handleViewStock}
+          >
             <i className="fa fa-boxes me-2"></i>View Stock
           </button>
-          <button className="btn d-flex align-items-center profile-button" onClick={toggleTheme}>
+          <button
+            className="btn d-flex align-items-center profile-button"
+            onClick={toggleTheme}
+          >
             <i className="fa fa-adjust me-2"></i>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
@@ -192,7 +218,10 @@ const Profile = ({ userId }) => {
         </div>
       </div>
 
-      <div className="flex-grow-1 p-3 overflow-auto" style={{ backgroundColor: "#3C467B" }}>
+      <div
+        className="flex-grow-1 p-3 overflow-auto"
+        style={{ backgroundColor: "#3C467B" }}
+      >
         <Outlet />
       </div>
     </div>

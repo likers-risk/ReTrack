@@ -46,7 +46,7 @@ const ProductView = () => {
     } catch (err) {
       setError(err.message || "Failed to fetch products");
     } finally {
-      setIsLoading(false);
+      setTimeout(() => setIsLoading(false), 600);
     }
   };
 
@@ -256,6 +256,35 @@ const ProductView = () => {
       setError(err.message);
     }
   };
+
+  const FullScreenLoader = ({ message = "Loading..." }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+        backdropFilter: "blur(5px)",
+        transition: "opacity 0.3s ease",
+      }}
+    >
+      <div
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "4rem", height: "4rem" }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
+
+  if(isLoading) return <FullScreenLoader message="Loading products.."/>
 
   return (
     <div className="container-fluid py-4 bg-white rounded">

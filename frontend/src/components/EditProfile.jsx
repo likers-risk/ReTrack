@@ -2,19 +2,46 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 
+
+const FullScreenLoader = ({ message = "Loading..." }) => (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      zIndex: 9999,
+      color: "#fff",
+    }}
+  >
+    <div
+      className="spinner-border text-light"
+      role="status"
+      style={{ width: "3rem", height: "3rem" }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+    <p className="mt-3 fs-5 fw-semibold">{message}</p>
+  </div>
+);
+
 const EditProfile = () => {
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
-  const [userRole, setUserRole] = useState(""); 
+  const [userRole, setUserRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +49,7 @@ const EditProfile = () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
       const storedRole = localStorage.getItem("role");
-      setUserRole(storedRole); 
+      setUserRole(storedRole);
 
       if (!authToken || !userId) {
         navigate("/");
@@ -38,14 +65,17 @@ const EditProfile = () => {
         );
 
         if (!response.ok) throw new Error("Failed to fetch user data.");
+
         const data = await response.json();
         setUser(data.user);
         setUsername(data.user.username);
         setEmail(data.user.email);
         setRole(data.user.role);
+
+        
+        setTimeout(() => setLoading(false), 600);
       } catch (err) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
@@ -75,6 +105,7 @@ const EditProfile = () => {
     if (password) formData.append("password", password);
 
     try {
+      setSaving(true);
       const response = await fetch("http://127.0.0.1:8000/api/edit-profile", {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}` },
@@ -91,10 +122,14 @@ const EditProfile = () => {
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) return <p>Loading profile...</p>;
+  
+  if (loading) return <FullScreenLoader message="Loading profile..." />;
+  if (saving) return <FullScreenLoader message="Saving changes..." />;
 
   return (
     <div className="container mt-4">
@@ -108,7 +143,7 @@ const EditProfile = () => {
         onSubmit={handleUpdateProfile}
         className="bg-white p-4 shadow rounded"
       >
-       
+        
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
             src={
@@ -129,7 +164,7 @@ const EditProfile = () => {
           />
         </div>
 
-       
+   
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -140,7 +175,7 @@ const EditProfile = () => {
           />
         </div>
 
-      
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -151,7 +186,7 @@ const EditProfile = () => {
           />
         </div>
 
-      
+        
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
           <select
@@ -166,7 +201,7 @@ const EditProfile = () => {
           </select>
         </div>
 
-        {/* Passwords */}
+       
         <div className="mb-3">
           <label className="form-label fw-semibold">New Password</label>
           <div className="input-group">
@@ -186,6 +221,7 @@ const EditProfile = () => {
           </div>
         </div>
 
+        {/* Confirm Password */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Confirm Password</label>
           <input
@@ -212,7 +248,7 @@ const EditProfile = () => {
         )}
       </div>
 
-      {/* Actions */}
+      
       <div className="d-grid gap-2 mt-4">
         <Link to="/dashboard" className="btn btn-outline-secondary">
           📊 Back to Dashboard
