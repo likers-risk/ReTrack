@@ -10,6 +10,7 @@ const Profile = ({ userId }) => {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,14 +36,10 @@ const Profile = ({ userId }) => {
           }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user credentials.");
-        }
+        if (!response.ok) throw new Error("Failed to fetch user credentials.");
 
         const data = await response.json();
         setUser(data.user);
-
-        // Add a small delay for smoother loader transition
         setTimeout(() => setIsLoading(false), 600);
       } catch (err) {
         console.error("Fetch user error:", err);
@@ -57,7 +54,6 @@ const Profile = ({ userId }) => {
   const handleSignOut = async () => {
     try {
       setIsLoggingOut(true);
-
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
         setError("No authentication token found.");
@@ -78,10 +74,7 @@ const Profile = ({ userId }) => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("username");
         localStorage.removeItem("userId");
-
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+        setTimeout(() => navigate("/"), 1000);
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Logout failed.");
@@ -89,17 +82,10 @@ const Profile = ({ userId }) => {
       }
     } catch (err) {
       console.error("Logout error:", err);
-      setError("Failed to connect to the server for logout. Please try again.");
+      setError("Failed to connect to the server for logout.");
       setIsLoggingOut(false);
     }
   };
-
-  const handleNotification = () => navigate("notification");
-  const handleReport = () => navigate("total-sales");
-  const handleAdminInfo = () => navigate("profile");
-  const handleEditProfile = () => navigate("profile");
-  const handleAddProduct = () => navigate("/dashboard/add-item");
-  const handleViewStock = () => navigate("/dashboard/shopping");
 
   const toggleTheme = () => {
     setDarkMode((prev) => !prev);
@@ -107,120 +93,147 @@ const Profile = ({ userId }) => {
     document.body.style.color = !darkMode ? "#fff" : "#000";
   };
 
-  const FullScreenLoader = ({ message = "Loading..." }) => {
-    return (
+  const handleNavigate = (path) => navigate(path);
+
+  const FullScreenLoader = ({ message }) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "#50589C",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        zIndex: 9999,
+        color: "#fff",
+        transition: "opacity 0.3s ease",
+      }}
+    >
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "#50589C",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          zIndex: 9999,
-          color: "#fff",
-          transition: "opacity 0.3s ease",
-        }}
+        className="spinner-border text-light"
+        role="status"
+        style={{ width: "3rem", height: "3rem" }}
       >
-        <div
-          className="spinner-border text-light"
-          role="status"
-          style={{ width: "3rem", height: "3rem" }}
-        >
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3 fs-5 fw-semibold">{message}</p>
+        <span className="visually-hidden">Loading...</span>
       </div>
-    );
-  };
+      <p className="mt-3 fs-5 fw-semibold">{message}</p>
+    </div>
+  );
 
-  if (error) {
+  if (error)
     return <div className="text-danger text-center mt-5">Error: {error}</div>;
-  }
-
   if (isLoading) return <FullScreenLoader message="Loading profile..." />;
   if (isLoggingOut) return <FullScreenLoader message="Signing out..." />;
 
   return (
-    <div className="d-flex flex-row gap-5">
+    <div
+      className={`d-flex flex-column flex-md-row ${
+        darkMode ? "bg-dark text-light" : "bg-light text-dark"
+      }`}
+      style={{ minHeight: "100vh" }}
+    >
+      {/* Mobile Navbar */}
+      <nav
+        className="d-flex d-md-none justify-content-between align-items-center p-3 bg-primary text-white"
+        style={{ position: "sticky", top: 0, zIndex: 1000 }}
+      >
+        <span className="fw-bold fs-5">Profile</span>
+        <button
+          className="btn btn-outline-light"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          <i className="fa fa-bars"></i>
+        </button>
+      </nav>
+
+      {/* Sidebar */}
       <div
-        className="d-flex flex-column justify-content-between p-3 sticky-top shadow"
-        style={{ height: "100vh" }}
+        className={`sidebar bg-white shadow p-3 d-flex flex-column justify-content-between ${
+          isSidebarOpen ? "d-flex" : "d-none d-md-flex"
+        }`}
+        style={{
+          width: "100%",
+          maxWidth: "260px",
+          position: isSidebarOpen ? "absolute" : "relative",
+          height: "100vh",
+          top: isSidebarOpen ? "60px" : "0",
+          zIndex: 999,
+        }}
       >
         <div
-          className="d-flex flex-column user-info p-2"
-          onClick={handleAdminInfo}
+          className="d-flex flex-column align-items-center text-center mb-4"
+          onClick={() => handleNavigate("profile")}
         >
-          {user.image ? (
-            <img
-              src={`http://127.0.0.1:8000/storage/${user.image}`}
-              alt="User profile"
-              style={{ height: "50px", width: "50px", borderRadius: "50px" }}
-            />
-          ) : (
-            <img
-              src={UserProfile}
-              alt="Default user profile"
-              style={{ height: "50px", width: "50px", borderRadius: "20px" }}
-            />
-          )}
-          <p className="fw-semibold">{user.username}</p>
-          <p className="fw-bold">{user.role}</p>
-          <p className="fw-semibold">{user.email}</p>
+          <img
+            src={
+              user.image
+                ? `http://127.0.0.1:8000/storage/${user.image}`
+                : UserProfile
+            }
+            alt="User profile"
+            className="rounded-circle mb-2"
+            style={{ width: "80px", height: "80px", objectFit: "cover" }}
+          />
+          <h6 className="fw-semibold mb-0">{user.username}</h6>
+          <small className="text-muted">{user.role}</small>
+          <small>{user.email}</small>
         </div>
 
         <div className="d-flex flex-column gap-2">
           <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleEditProfile}
+            className="btn btn-outline-primary text-start"
+            onClick={() => handleNavigate("profile")}
           >
             <i className="fa fa-user-edit me-2"></i>Edit Profile
           </button>
           <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleReport}
+            className="btn btn-outline-primary text-start"
+            onClick={() => handleNavigate("total-sales")}
           >
             <i className="fa fa-file-alt me-2"></i>Reports
           </button>
           <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleNotification}
+            className="btn btn-outline-primary text-start"
+            onClick={() => handleNavigate("notification")}
           >
-            <i className="fa-solid fa-bell text-black me-2"></i>Notification
+            <i className="fa fa-bell me-2"></i>Notifications
           </button>
           <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleAddProduct}
+            className="btn btn-outline-primary text-start"
+            onClick={() => handleNavigate("/dashboard/add-item")}
           >
             <i className="fa fa-plus-circle me-2"></i>Add Product
           </button>
           <button
-            className="btn d-flex align-items-center profile-button"
-            onClick={handleViewStock}
+            className="btn btn-outline-primary text-start"
+            onClick={() => handleNavigate("/dashboard/shopping")}
           >
             <i className="fa fa-boxes me-2"></i>View Stock
           </button>
           <button
-            className="btn d-flex align-items-center profile-button"
+            className="btn btn-outline-secondary text-start"
             onClick={toggleTheme}
           >
             <i className="fa fa-adjust me-2"></i>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
           <button
-            type="button"
-            className="btn d-flex align-items-center profile-button text-danger"
+            className="btn btn-outline-danger text-start"
             onClick={handleSignOut}
           >
-            <i className="fa-solid fa-sign-out-alt me-2"></i>Logout
+            <i className="fa fa-sign-out-alt me-2"></i>Logout
           </button>
         </div>
       </div>
 
+      {/* Main Content */}
       <div
         className="flex-grow-1 p-3 overflow-auto"
-        style={{ backgroundColor: "#3C467B" }}
+        style={{
+          backgroundColor: darkMode ? "#2d2d2d" : "#f5f6fa",
+          minHeight: "100vh",
+        }}
       >
         <Outlet />
       </div>

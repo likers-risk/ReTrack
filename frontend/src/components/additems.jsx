@@ -17,11 +17,8 @@ const AddItems = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setError("");
     const authToken = localStorage.getItem("authToken");
-
     if (!authToken) {
-      console.warn("No authentication. Redirecting to login.");
       navigate("/");
     } else {
       setTimeout(() => setLoading(false), 600);
@@ -40,18 +37,13 @@ const AddItems = () => {
     formData.append("cost", cost);
     formData.append("quantity", quantity);
     formData.append("expiration_date", expiration_date);
-    if (image) {
-      formData.append("image", image);
-    }
+    if (image) formData.append("image", image);
 
     try {
       const authToken = localStorage.getItem("authToken");
-
       const response = await fetch("http://127.0.0.1:8000/api/products", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authToken}` },
         body: formData,
       });
 
@@ -61,24 +53,21 @@ const AddItems = () => {
         setCategory("");
         setDescription("");
         setPrice("");
+        setCost("");
         setQuantity("");
         setExpiration("");
         setImage(null);
 
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1500);
+        setTimeout(() => navigate("/dashboard"), 1500);
       } else {
         const errorData = await response.json();
-        setError(
-          errorData.message || "Failed to add product. Please try again."
-        );
+        setError(errorData.message || "Failed to add product.");
       }
-    } catch (err) {
-      console.error("Add item error:", err);
+    } catch {
       setError("Failed to connect to the server. Please check your network.");
     }
   };
+
   const FullScreenLoader = ({ message = "Loading..." }) => (
     <div
       style={{
@@ -104,7 +93,8 @@ const AddItems = () => {
     </div>
   );
 
-  if (loading) return <FullScreenLoader message="Loading.." />;
+  if (loading) return <FullScreenLoader message="Loading..." />;
+
   return (
     <>
       {isVisible && (
@@ -114,125 +104,138 @@ const AddItems = () => {
           tabIndex="-1"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="successTitle"
-          aria-hidden={!isVisible}
         >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header border-0 pb-0 justify-content-center">
-                <h5
-                  className="modal-title fs-4 fw-bold text-success"
-                  id="successTitle"
-                >
+                <h5 className="modal-title fs-4 fw-bold text-success">
                   Success!
                 </h5>
               </div>
               <div className="modal-body text-center pt-2">
-                <p id="successDesc">Item added successfully.</p>
+                <p>Item added successfully.</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div
-        className="container p-5 d-flex flex-column rounded"
-        style={{ backgroundColor: "white", height: "95vh" }}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="d-flex flex-row gap-5 mb-3">
-            <input
-              type="text"
-              id="product_name"
-              value={product_name}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="Product Name"
-              className="w-50 form-control border-top-0 border-start-0 border-end-0 text-center"
-              required
-            />
-            <input
-              type="text"
-              id="category"
-              value={category_name}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Category"
-              className="w-50 form-control border-top-0 border-start-0 border-end-0 text-center"
-              required
-            />
+      <div className="container py-4 px-3">
+        <div
+          className="card shadow-lg border-0 rounded-4 mx-auto"
+          style={{ maxWidth: "700px" }}
+        >
+          <div className="card-body p-4">
+            <h4 className="text-center mb-4 fw-bold">Add New Product</h4>
+
+            <form onSubmit={handleSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <input
+                    type="text"
+                    id="product_name"
+                    value={product_name}
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="Product Name"
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <input
+                    type="text"
+                    id="category"
+                    value={category_name}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Category"
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+
+                <div className="col-12">
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Description"
+                    className="form-control text-center"
+                    rows="2"
+                  />
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                  <input
+                    type="number"
+                    id="price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Price"
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                  <input
+                    type="number"
+                    id="cost"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    placeholder="Cost"
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                  <input
+                    type="number"
+                    id="quantity"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    placeholder="Quantity"
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                  <input
+                    type="date"
+                    id="expiration_date"
+                    value={expiration_date}
+                    onChange={(e) => setExpiration(e.target.value)}
+                    className="form-control text-center"
+                    required
+                  />
+                </div>
+
+                <div className="col-12">
+                  <label htmlFor="image" className="form-label fw-semibold">
+                    Upload Image:
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    onChange={(e) => setImage(e.target.files[0])}
+                    accept="image/*"
+                    className="form-control"
+                  />
+                </div>
+              </div>
+
+              {error && <div className="alert alert-danger mt-3">{error}</div>}
+
+              <button
+                type="submit"
+                className="btn btn-primary w-100 mt-4 fw-semibold"
+              >
+                Save
+              </button>
+            </form>
           </div>
-
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Description"
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-100 form-control text-center"
-            />
-          </div>
-
-          <div className="d-flex flex-row gap-2 mb-3">
-            <input
-              type="number"
-              id="price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-              className="w-33 form-control text-center"
-              required
-            />
-
-            <input
-              type="number"
-              id="cost"
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
-              placeholder="Cost"
-              className="w-33 form-control text-center"
-              required
-            />
-
-            <input
-              type="number"
-              id="quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Quantity"
-              className="w-33 form-control text-center"
-              required
-            />
-
-            <input
-              type="date"
-              id="expiration_date"
-              value={expiration_date}
-              onChange={(e) => setExpiration(e.target.value)}
-              placeholder="Expiration Date: mm/dd/yy"
-              className="w-33 form-control text-center"
-              required
-            />
-          </div>
-
-          <div className="mb-3">
-            <label htmlFor="image" className="form-label">
-              Upload Image:
-            </label>
-            <input
-              type="file"
-              id="image"
-              onChange={(e) => setImage(e.target.files[0])}
-              accept="image/*"
-              className="form-control"
-            />
-          </div>
-
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-
-          <button type="submit" className="btn btn-primary w-100">
-            Save
-          </button>
-        </form>
+        </div>
       </div>
     </>
   );
