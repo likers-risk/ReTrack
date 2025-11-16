@@ -21,7 +21,7 @@ const AddItems = () => {
     if (!authToken) {
       navigate("/");
     } else {
-      setTimeout(() => setLoading(false), 600);
+      setLoading(false);
     }
   }, [navigate]);
 

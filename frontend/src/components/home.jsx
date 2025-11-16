@@ -99,7 +99,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Recently Added Products */}
+      
       <div className="card p-3 shadow rounded-4 mb-4 bg-white">
         <h5 className="fw-bold mb-3">Recently Added Products</h5>
         <div className="table-responsive">

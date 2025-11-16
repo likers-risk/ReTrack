@@ -73,7 +73,7 @@ const EditProfile = () => {
         setRole(data.user.role);
 
         
-        setTimeout(() => setLoading(false), 600);
+         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
@@ -119,7 +119,7 @@ const EditProfile = () => {
 
       setSuccess(true);
       setError("");
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 1000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -133,7 +133,7 @@ const EditProfile = () => {
 
   return (
     <div className="container mt-4">
-      <h3 className="fw-bold mb-3 text-white">Profile</h3>
+      <h3 className="fw-bold mb-3 text-dark">Profile</h3>
       {error && <div className="alert alert-danger">{error}</div>}
       {success && (
         <div className="alert alert-success">Profile updated successfully!</div>

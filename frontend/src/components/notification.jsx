@@ -35,7 +35,7 @@ const Notification = () => {
       } catch (err) {
         setError(err.message || "Error fetching notifications.");
       } finally {
-        setTimeout(() => setLoading(false), 600);
+        setLoading(false);
       }
     };
 
@@ -142,7 +142,7 @@ const Notification = () => {
     </div>
   );
 
-  if(loading) return <FullScreenLoader message="Loading notifications..."/>
+  if (loading) return <FullScreenLoader message="Loading notifications..." />;
 
   return (
     <div className="container mt-3">

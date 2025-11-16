@@ -124,7 +124,7 @@ const Sales = () => {
       className="container mt-3 rounded"
       style={{ backgroundColor: "white" }}
     >
-      <h3 className="mb-3">💰 Sales Dashboard</h3>
+      <h3 className="mb-3">Sales Dashboard</h3>
 
       {error && <p className="text-danger">{error}</p>}
 

@@ -31,7 +31,7 @@ const Reports = () => {
 
         if (!response.ok) throw new Error("Failed to get total sales.");
         const data = await response.json();
-        setTimeout(() => setLoading(false), 600);
+        setLoading(false);
         setTotalSales(data.total_sales || 0);
       } catch (err) {
         setError(err.message || "Server Error");

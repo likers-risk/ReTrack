@@ -46,7 +46,7 @@ const ProductView = () => {
     } catch (err) {
       setError(err.message || "Failed to fetch products");
     } finally {
-      setTimeout(() => setIsLoading(false), 600);
+      setIsLoading(false);
     }
   };
 
@@ -251,7 +251,7 @@ const ProductView = () => {
       window.location.reload();
       setError("");
       setShowUpdateModal(false);
-      setTimeout(() => setIsSuccess(false), 3000);
+      setIsLoading(false);
     } catch (err) {
       setError(err.message);
     }
@@ -284,7 +284,7 @@ const ProductView = () => {
     </div>
   );
 
-  if(isLoading) return <FullScreenLoader message="Loading products.."/>
+  if (isLoading) return <FullScreenLoader message="Loading products.." />;
 
   return (
     <div className="container-fluid py-4 bg-white rounded">

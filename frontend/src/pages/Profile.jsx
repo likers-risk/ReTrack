@@ -40,7 +40,7 @@ const Profile = ({ userId }) => {
 
         const data = await response.json();
         setUser(data.user);
-        setTimeout(() => setIsLoading(false), 600);
+        setIsLoading(false);
       } catch (err) {
         console.error("Fetch user error:", err);
         setError(err.message);
@@ -133,7 +133,6 @@ const Profile = ({ userId }) => {
       }`}
       style={{ minHeight: "100vh" }}
     >
-      {/* Mobile Navbar */}
       <nav
         className="d-flex d-md-none justify-content-between align-items-center p-3 bg-primary text-white"
         style={{ position: "sticky", top: 0, zIndex: 1000 }}

@@ -18,7 +18,7 @@ const Dashboard = () => {
       navigate("/");
     }
 
-    setTimeout(() => setIsLoading(false), 600);
+    setIsLoading(false);
   }, [navigate]);
 
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
