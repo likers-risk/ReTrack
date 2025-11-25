@@ -133,9 +133,8 @@ export default function Login() {
                         required
                       >
                         <option value="">Select</option>
-                        <option value="Manager">Manager</option>
                         <option value="Staff">Staff</option>
-                        <option value="Owner">Owner</option>
+                        <option value="Owner">Admin</option>
                       </select>
                     </div>
                   </div>

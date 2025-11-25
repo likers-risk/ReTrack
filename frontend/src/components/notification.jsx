@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   const navigateDashboard = () => navigate("/dashboard");
@@ -34,8 +34,6 @@ const Notification = () => {
         setNotifications(data.notifications || []);
       } catch (err) {
         setError(err.message || "Error fetching notifications.");
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -115,37 +113,11 @@ const Notification = () => {
     }
   };
 
-  const FullScreenLoader = ({ message = "Loading..." }) => (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.7)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        zIndex: 9999,
-        color: "#fff",
-        backdropFilter: "blur(5px)",
-        transition: "opacity 0.3s ease",
-      }}
-    >
-      <div
-        className="spinner-border text-light"
-        role="status"
-        style={{ width: "4rem", height: "4rem" }}
-      >
-        <span className="visually-hidden">Loading...</span>
-      </div>
-      <p className="mt-3 fs-5 fw-semibold">{message}</p>
-    </div>
-  );
-
-  if (loading) return <FullScreenLoader message="Loading notifications..." />;
-
   return (
-    <div className="container mt-3">
+    <div
+      className="container mt-3 p-2 rounded"
+      style={{ backgroundColor: "#50589C" }}
+    >
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button
           className="btn btn-dark fw-semibold"
@@ -162,56 +134,53 @@ const Notification = () => {
         )}
       </div>
 
-      {loading && <p>Loading notifications...</p>}
       {error && <p className="text-danger">{error}</p>}
 
-      {!loading && (
-        <>
-          <h4 className="fw-bold mb-3">
-            🔔 Notifications{" "}
-            <span className="badge bg-primary">
-              {notifications.filter((n) => !n.read).length} Unread
-            </span>
-          </h4>
+      <>
+        <h4 className="fw-bold mb-3">
+          🔔 Notifications{" "}
+          <span className="badge bg-primary">
+            {notifications.filter((n) => !n.read).length} Unread
+          </span>
+        </h4>
 
-          <div className="list-group">
-            {notifications.length > 0 ? (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`list-group-item d-flex justify-content-between align-items-start ${
-                    n.read ? "bg-light" : "bg-white fw-bold"
-                  }`}
-                >
-                  <div>
-                    <h6>{n.title}</h6>
-                    <p className="mb-1">{n.message}</p>
-                    <small className="text-muted">
-                      {new Date(n.created_at).toLocaleString()}
-                    </small>
-                  </div>
-                  <div className="d-flex flex-column gap-1">
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={() => toggleRead(n.id, n.read)}
-                    >
-                      {n.read ? "Mark Unread" : "Mark Read"}
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => deleteNotification(n.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+        <div className="list-group">
+          {notifications.length > 0 ? (
+            notifications.map((n) => (
+              <div
+                key={n.id}
+                className={`list-group-item d-flex justify-content-between align-items-start ${
+                  n.read ? "bg-light" : "bg-white fw-bold"
+                }`}
+              >
+                <div>
+                  <h6>{n.title}</h6>
+                  <p className="mb-1">{n.message}</p>
+                  <small className="text-muted">
+                    {new Date(n.created_at).toLocaleString()}
+                  </small>
                 </div>
-              ))
-            ) : (
-              <p className="text-muted">No notifications available.</p>
-            )}
-          </div>
-        </>
-      )}
+                <div className="d-flex flex-column gap-1">
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => toggleRead(n.id, n.read)}
+                  >
+                    {n.read ? "Mark Unread" : "Mark Read"}
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => deleteNotification(n.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted">No notifications available.</p>
+          )}
+        </div>
+      </>
     </div>
   );
 };

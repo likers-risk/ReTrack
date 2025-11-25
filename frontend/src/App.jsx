@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import "./../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import Login from "./pages/loginform";
 import Register from "./pages/registerform";
 import Dashboard from "./components/dashboard";
@@ -11,7 +12,6 @@ import Notification from "./components/notification";
 import Reports from "./components/Report";
 import ManageOrders from "./pages/ManageOrder";
 import EditProfile from "./components/EditProfile";
-
 
 function App() {
   return (

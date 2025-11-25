@@ -16,6 +16,8 @@ const ProductView = () => {
   const [showLowStockModal, setShowLowStockModal] = useState(false);
   const [lowStockMessages, setLowStockMessages] = useState([]);
 
+  const [isVisible, setIsVisible] = useState(false);
+
   const navigate = useNavigate();
 
   const totalPrice = cartItems.reduce(
@@ -25,7 +27,6 @@ const ProductView = () => {
 
   const fetchProducts = async () => {
     try {
-      setIsLoading(true);
       const authToken = localStorage.getItem("authToken");
 
       const response = await fetch("http://127.0.0.1:8000/api/products", {
@@ -248,12 +249,16 @@ const ProductView = () => {
       );
 
       setIsSuccess(true);
-      window.location.reload();
       setError("");
-      setShowUpdateModal(false);
       setIsLoading(false);
+      setIsVisible(true);
+      setTimeout(() => setIsSuccess(false), 2000);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsVisible(false);
+      setShowUpdateModal(false);
+      setTimeout(() => window.location.reload(), 2000);
     }
   };
 
@@ -288,6 +293,28 @@ const ProductView = () => {
 
   return (
     <div className="container-fluid py-4 bg-white rounded">
+      {isVisible && (
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          tabIndex="-1"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-0 pb-0 justify-content-center">
+                <h5 className="modal-title fs-4 fw-bold text-success">
+                  Success!
+                </h5>
+              </div>
+              <div className="modal-body text-center pt-2">
+                <p>Item added successfully.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {isSuccess && (
         <div
           className="modal fade show"
@@ -491,7 +518,11 @@ const ProductView = () => {
       </div>
 
       {showUpdateModal && selectedProduct && (
-        <div className="modal show d-block" tabIndex="-1">
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -502,100 +533,108 @@ const ProductView = () => {
                   onClick={() => setShowUpdateModal(false)}
                 ></button>
               </div>
+
               <div className="modal-body">
                 <input
                   type="text"
                   className="form-control mb-2"
                   placeholder="Product Name"
-                  value={selectedProduct.product_name}
+                  value={selectedProduct.product_name || ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       product_name: e.target.value,
-                    })
+                    }))
                   }
                 />
+
                 <input
                   type="text"
                   className="form-control mb-2"
                   placeholder="Category"
                   value={selectedProduct.category_name || ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       category_name: e.target.value,
-                    })
+                    }))
                   }
                 />
+
                 <textarea
                   className="form-control mb-2"
                   placeholder="Description"
-                  value={selectedProduct.description}
+                  value={selectedProduct.description || ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       description: e.target.value,
-                    })
+                    }))
                   }
                 />
+
                 <input
                   type="number"
                   className="form-control mb-2"
                   placeholder="Price"
-                  value={selectedProduct.price}
+                  value={selectedProduct.price ?? ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
-                      price: e.target.value,
-                    })
+                    setSelectedProduct((prev) => ({
+                      ...prev,
+                      price: Number(e.target.value),
+                    }))
                   }
                 />
+
                 <input
                   type="number"
                   className="form-control mb-2"
                   placeholder="Cost"
-                  value={selectedProduct.cost || ""}
+                  value={selectedProduct.cost ?? ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
-                      cost: e.target.value,
-                    })
+                    setSelectedProduct((prev) => ({
+                      ...prev,
+                      cost: Number(e.target.value),
+                    }))
                   }
                 />
+
                 <input
                   type="number"
                   className="form-control mb-2"
                   placeholder="Quantity"
-                  value={selectedProduct.stocks?.quantity || 0}
+                  value={selectedProduct.stocks?.quantity ?? 0}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       stocks: {
-                        ...selectedProduct.stocks,
-                        quantity: e.target.value,
+                        ...prev.stocks,
+                        quantity: Number(e.target.value),
                       },
-                    })
+                    }))
                   }
                 />
+
                 <input
                   type="date"
                   className="form-control mb-2"
                   value={selectedProduct.expiration_date || ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       expiration_date: e.target.value,
-                    })
+                    }))
                   }
                 />
+
                 <input
                   type="file"
                   className="form-control mb-2"
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       imageFile: e.target.files[0],
-                    })
+                    }))
                   }
                 />
               </div>
@@ -608,6 +647,7 @@ const ProductView = () => {
                 >
                   Cancel
                 </button>
+
                 <button
                   type="button"
                   className="btn btn-primary"

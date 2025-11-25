@@ -162,7 +162,6 @@ const Profile = ({ userId }) => {
       >
         <div
           className="d-flex flex-column align-items-center text-center mb-4"
-          onClick={() => handleNavigate("profile")}
         >
           <img
             src={

@@ -58,6 +58,13 @@ class ProductController extends Controller
             $imagePath = $request->file('image')->store('images', 'public');
         }
 
+        $checkProduct = Product::where('product_name',$validatedData['product_name'])->first();
+
+        if($checkProduct) {
+            return response()->json([
+                'message' => 'Product already exists'
+            ],409);
+        }
 
         $product = Product::create([
             'product_name' => $validatedData['product_name'],
@@ -106,7 +113,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'cost' => 'required|numeric',
-            'stocks.quantity' => 'required|integer|min:0', // 👈 nested path
+            'stocks.quantity' => 'required|integer|min:0', 
             'expiration_date' => 'sometimes|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
@@ -129,7 +136,7 @@ class ProductController extends Controller
             'image' => $imagePath,
         ]);
 
-        // 👇 Handle nested stocks
+       
         $product->stocks()->update([
             'quantity' => $validatedData['stocks']['quantity']
         ]);

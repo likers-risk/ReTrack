@@ -7,7 +7,6 @@ const Reports = () => {
   const [lowStock, setLowStock] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +30,6 @@ const Reports = () => {
 
         if (!response.ok) throw new Error("Failed to get total sales.");
         const data = await response.json();
-        setLoading(false);
         setTotalSales(data.total_sales || 0);
       } catch (err) {
         setError(err.message || "Server Error");
@@ -117,33 +115,6 @@ const Reports = () => {
     navigate("/dashboard");
   };
 
-  const FullScreenLoader = ({ message = "Loading..." }) => (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        zIndex: 9999,
-        color: "#fff",
-      }}
-    >
-      <div
-        className="spinner-border text-light"
-        role="status"
-        style={{ width: "3rem", height: "3rem" }}
-      >
-        <span className="visually-hidden">Loading...</span>
-      </div>
-      <p className="mt-3 fs-5 fw-semibold">{message}</p>
-    </div>
-  );
-
-  if (loading) return <FullScreenLoader message="Loading profile..." />;
-
   return (
     <div
       className="d-flex flex-column p-3 rounded shadow-sm"
@@ -177,7 +148,7 @@ const Reports = () => {
       </div>
 
       <div className="card p-3 shadow-sm mb-4">
-        <h5 className="fw-bold text-danger">⚠️ Low Stock Items</h5>
+        <h5 className="fw-bold text-danger">Low Stock Items</h5>
         {lowStock.length > 0 ? (
           <ul className="list-group mt-2">
             {lowStock.map((item, index) => (
@@ -198,7 +169,7 @@ const Reports = () => {
       </div>
 
       <div className="card p-3 shadow-sm">
-        <h5 className="fw-bold text-success">🔥 Top Selling Products</h5>
+        <h5 className="fw-bold text-success">Top Selling Products</h5>
         {topProducts.length > 0 ? (
           <ol className="mt-2">
             {topProducts.map((product, index) => (

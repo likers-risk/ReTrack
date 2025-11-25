@@ -2,32 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 
-
-const FullScreenLoader = ({ message = "Loading..." }) => (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      zIndex: 9999,
-      color: "#fff",
-    }}
-  >
-    <div
-      className="spinner-border text-light"
-      role="status"
-      style={{ width: "3rem", height: "3rem" }}
-    >
-      <span className="visually-hidden">Loading...</span>
-    </div>
-    <p className="mt-3 fs-5 fw-semibold">{message}</p>
-  </div>
-);
-
 const EditProfile = () => {
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
@@ -40,7 +14,6 @@ const EditProfile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
@@ -71,12 +44,8 @@ const EditProfile = () => {
         setUsername(data.user.username);
         setEmail(data.user.email);
         setRole(data.user.role);
-
-        
-         setLoading(false);
       } catch (err) {
         setError(err.message);
-        setLoading(false);
       }
     };
 
@@ -127,8 +96,6 @@ const EditProfile = () => {
     }
   };
 
-  
-  if (loading) return <FullScreenLoader message="Loading profile..." />;
   if (saving) return <FullScreenLoader message="Saving changes..." />;
 
   return (
@@ -143,7 +110,6 @@ const EditProfile = () => {
         onSubmit={handleUpdateProfile}
         className="bg-white p-4 shadow rounded"
       >
-        
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
             src={
@@ -164,7 +130,6 @@ const EditProfile = () => {
           />
         </div>
 
-   
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -175,7 +140,6 @@ const EditProfile = () => {
           />
         </div>
 
-       
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -186,7 +150,6 @@ const EditProfile = () => {
           />
         </div>
 
-        
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
           <select
@@ -201,7 +164,6 @@ const EditProfile = () => {
           </select>
         </div>
 
-       
         <div className="mb-3">
           <label className="form-label fw-semibold">New Password</label>
           <div className="input-group">
@@ -237,7 +199,6 @@ const EditProfile = () => {
         </button>
       </form>
 
-      
       <div className="bg-light p-3 mt-3 rounded">
         <h6 className="fw-bold">Profile Info</h6>
         <p>📛 Role: {user.role}</p>
@@ -248,7 +209,6 @@ const EditProfile = () => {
         )}
       </div>
 
-      
       <div className="d-grid gap-2 mt-4">
         <Link to="/dashboard" className="btn btn-outline-secondary">
           📊 Back to Dashboard

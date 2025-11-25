@@ -13,6 +13,7 @@ const AddItems = () => {
   const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [click, setClick] = useState(false);
 
   const navigate = useNavigate();
 
@@ -57,6 +58,7 @@ const AddItems = () => {
         setQuantity("");
         setExpiration("");
         setImage(null);
+        setClick(true);
 
         setTimeout(() => navigate("/dashboard"), 1500);
       } else {
@@ -230,6 +232,7 @@ const AddItems = () => {
               <button
                 type="submit"
                 className="btn btn-primary w-100 mt-4 fw-semibold"
+                disabled={click}
               >
                 Save
               </button>
