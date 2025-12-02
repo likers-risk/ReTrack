@@ -31,7 +31,7 @@ function App() {
             <Route index element={<Reports />} />
             <Route path="total-sales" element={<Reports />} />
             <Route path="notification" element={<Notification />} />
-            <Route path="profile" element={<EditProfile />} />
+            <Route path="edit-profile" element={<EditProfile />} />
           </Route>
           <Route path="dashboard/orders" element={<ManageOrders />} />
         </Routes>

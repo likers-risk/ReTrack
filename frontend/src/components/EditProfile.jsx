@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
+// import FullScreenLoader from "../components/FullScreenLoader"; // <-- make sure this exists
 
 const EditProfile = () => {
   const [user, setUser] = useState(null);
@@ -15,6 +16,7 @@ const EditProfile = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +43,9 @@ const EditProfile = () => {
 
         const data = await response.json();
         setUser(data.user);
-        setUsername(data.user.username);
-        setEmail(data.user.email);
-        setRole(data.user.role);
+        setUsername(data.user.username || "");
+        setEmail(data.user.email || "");
+        setRole(data.user.role || "");
       } catch (err) {
         setError(err.message);
       }
@@ -75,6 +77,7 @@ const EditProfile = () => {
 
     try {
       setSaving(true);
+
       const response = await fetch("http://127.0.0.1:8000/api/edit-profile", {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}` },
@@ -88,6 +91,7 @@ const EditProfile = () => {
 
       setSuccess(true);
       setError("");
+
       setTimeout(() => setSuccess(false), 1000);
     } catch (err) {
       setError(err.message);
@@ -98,9 +102,13 @@ const EditProfile = () => {
 
   if (saving) return <FullScreenLoader message="Saving changes..." />;
 
+  // ⛔ FIX: Don't render until user data is loaded
+  if (!user) return <div className="text-center mt-5">Loading profile...</div>;
+
   return (
     <div className="container mt-4">
       <h3 className="fw-bold mb-3 text-dark">Profile</h3>
+
       {error && <div className="alert alert-danger">{error}</div>}
       {success && (
         <div className="alert alert-success">Profile updated successfully!</div>
@@ -110,6 +118,7 @@ const EditProfile = () => {
         onSubmit={handleUpdateProfile}
         className="bg-white p-4 shadow rounded"
       >
+        {/* Profile Image */}
         <div className="mb-3 d-flex align-items-center gap-3">
           <img
             src={
@@ -130,6 +139,7 @@ const EditProfile = () => {
           />
         </div>
 
+        {/* Username */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Username</label>
           <input
@@ -140,6 +150,7 @@ const EditProfile = () => {
           />
         </div>
 
+        {/* Email */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Email</label>
           <input
@@ -150,6 +161,7 @@ const EditProfile = () => {
           />
         </div>
 
+        {/* Role */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Role</label>
           <select
@@ -164,6 +176,7 @@ const EditProfile = () => {
           </select>
         </div>
 
+        {/* Password */}
         <div className="mb-3">
           <label className="form-label fw-semibold">New Password</label>
           <div className="input-group">
@@ -199,6 +212,7 @@ const EditProfile = () => {
         </button>
       </form>
 
+      {/* Additional Profile Info */}
       <div className="bg-light p-3 mt-3 rounded">
         <h6 className="fw-bold">Profile Info</h6>
         <p>📛 Role: {user.role}</p>
@@ -213,6 +227,7 @@ const EditProfile = () => {
         <Link to="/dashboard" className="btn btn-outline-secondary">
           📊 Back to Dashboard
         </Link>
+
         {userRole === "Owner" && (
           <Link
             to="/register"

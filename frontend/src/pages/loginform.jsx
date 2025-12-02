@@ -12,6 +12,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -127,7 +128,7 @@ export default function Login() {
                       <select
                         id="role"
                         name="role"
-                        className="rounded-2 text-dark"
+                        className="rounded-2 text-dark" style={{marginLeft: "10px"}}
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         required
@@ -148,7 +149,7 @@ export default function Login() {
                       Login
                     </button>
                   </div>
-                  <div className="d-flex justify-content-center">
+                  <div className="d-flex justify-content-center mt-4">
                     <Link to="/retrieve">
                       <p>Forget Password?</p>
                     </Link>

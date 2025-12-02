@@ -146,7 +146,7 @@ const Profile = ({ userId }) => {
         </button>
       </nav>
 
-      {/* Sidebar */}
+     
       <div
         className={`sidebar bg-white shadow p-3 d-flex flex-column justify-content-between ${
           isSidebarOpen ? "d-flex" : "d-none d-md-flex"
@@ -181,7 +181,7 @@ const Profile = ({ userId }) => {
         <div className="d-flex flex-column gap-2">
           <button
             className="btn btn-outline-primary text-start"
-            onClick={() => handleNavigate("profile")}
+            onClick={() => handleNavigate("edit-profile")}
           >
             <i className="fa fa-user-edit me-2"></i>Edit Profile
           </button>
