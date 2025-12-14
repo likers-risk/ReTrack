@@ -12,7 +12,6 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -128,14 +127,22 @@ export default function Login() {
                       <select
                         id="role"
                         name="role"
-                        className="rounded-2 text-dark" style={{marginLeft: "10px"}}
+                        className="rounded-2 text-dark"
+                        style={{ marginLeft: "10px" }}
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         required
                       >
-                        <option value="">Select</option>
-                        <option value="Staff">Staff</option>
-                        <option value="Owner">Admin</option>
+                        <option
+                          value=""
+                          disabled
+                          hidden
+                          style={{ color: "#999" }}
+                        >
+                          Select
+                        </option>
+                        <option value="Staff">staff</option>
+                        <option value="Admin">admin</option>
                       </select>
                     </div>
                   </div>
@@ -144,7 +151,7 @@ export default function Login() {
                     <button
                       type="submit"
                       className="btn btn-lg text-white"
-                      style={{ background: "#50589C" }}
+                      style={{ background: "#263d81" }}
                     >
                       Login
                     </button>

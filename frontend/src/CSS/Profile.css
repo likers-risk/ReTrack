@@ -1,19 +1,153 @@
-.profile-button {
-  background-color: #f8f9fa; /* light bootstrap default */
-  border: none;
-  transition: all 0.3s ease;
+/* Smooth transitions */
+* {
+  box-sizing: border-box;
 }
 
-.profile-button:hover {
-  background-color: #0d6efd; /* bootstrap primary */
-  color: #fff;
-  transform: scale(1.05); /* subtle zoom */
+/* Profile page specific styles */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.profile-button i {
-  transition: transform 0.3s ease;
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-.profile-button:hover i {
-  transform: rotate(10deg); /* icon tilt effect */
+.nav-pills .nav-link {
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+  border-color: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.badge {
+  transition: all 0.2s ease;
+}
+
+/* Sidebar Container */
+.sidebar-container {
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* Sidebar Links */
+.sidebar-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background-color: #4f46e5;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+.sidebar-link:hover::before {
+  transform: scaleY(1);
+}
+
+.sidebar-link:hover {
+  transform: translateX(2px);
+}
+
+/* Toggle Button */
+.toggle-btn {
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+/* Active Link Styling */
+.sidebar-link.active {
+  background-color: #eef2ff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.sidebar-link.active::before {
+  transform: scaleY(1);
+}
+
+/* Main Content Scrollbar */
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sidebar-link {
+  animation: fadeIn 0.3s ease;
 }

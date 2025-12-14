@@ -189,7 +189,7 @@ const Sales = () => {
                     label: "Sales Amount",
                     data: graphData.data,
                     borderColor: "rgba(75,192,192,1)",
-                    backgroundColor: "rgba(75,192,192,0.2)",
+                    backgroundColor: "rgba(33, 108, 194, 0.2)",
                   },
                 ],
               }}

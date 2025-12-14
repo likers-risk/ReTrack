@@ -100,13 +100,13 @@ const Profile = ({ userId }) => {
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "#50589C",
+        backgroundColor: "#263d81",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
         zIndex: 9999,
-        color: "#fff",
+        color: "#aedef1",
         transition: "opacity 0.3s ease",
       }}
     >
@@ -146,7 +146,6 @@ const Profile = ({ userId }) => {
         </button>
       </nav>
 
-     
       <div
         className={`sidebar bg-white shadow p-3 d-flex flex-column justify-content-between ${
           isSidebarOpen ? "d-flex" : "d-none d-md-flex"
@@ -160,9 +159,7 @@ const Profile = ({ userId }) => {
           zIndex: 999,
         }}
       >
-        <div
-          className="d-flex flex-column align-items-center text-center mb-4"
-        >
+        <div className="d-flex flex-column align-items-center text-center mb-4">
           <img
             src={
               user.image
@@ -196,18 +193,6 @@ const Profile = ({ userId }) => {
             onClick={() => handleNavigate("notification")}
           >
             <i className="fa fa-bell me-2"></i>Notifications
-          </button>
-          <button
-            className="btn btn-outline-primary text-start"
-            onClick={() => handleNavigate("/dashboard/add-item")}
-          >
-            <i className="fa fa-plus-circle me-2"></i>Add Product
-          </button>
-          <button
-            className="btn btn-outline-primary text-start"
-            onClick={() => handleNavigate("/dashboard/shopping")}
-          >
-            <i className="fa fa-boxes me-2"></i>View Stock
           </button>
           <button
             className="btn btn-outline-secondary text-start"

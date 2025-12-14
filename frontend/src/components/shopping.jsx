@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 const ProductView = () => {
+  const { isDarkMode } = useTheme();
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -292,7 +294,13 @@ const ProductView = () => {
   if (isLoading) return <FullScreenLoader message="Loading products.." />;
 
   return (
-    <div className="container-fluid py-4 bg-white rounded">
+    <div
+      className="container-fluid py-4 rounded"
+      style={{
+        backgroundColor: isDarkMode ? "#1f2937" : "white",
+        color: isDarkMode ? "#f9fafb" : "#1f2937",
+      }}
+    >
       {isVisible && (
         <div
           className="modal fade show"
@@ -377,26 +385,57 @@ const ProductView = () => {
       )}
       <div className="row">
         <div className="col-md-9">
-          <h2 className="mb-4 text-center">Products</h2>
+          <h2
+            className="mb-4 text-left"
+            style={{ color: isDarkMode ? "#f9fafb" : "#1f2937" }}
+          >
+            Products
+          </h2>
           <div className="mb-5" style={{ width: "400px" }}>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                style={{
+                  backgroundColor: isDarkMode ? "#4b5563" : "white",
+                  color: isDarkMode ? "#f9fafb" : "#1f2937",
+                  borderColor: isDarkMode ? "#6b7280" : "#dee2e6",
+                  borderRight: "none",
+                }}
+              />
+              <span
+                className="input-group-text"
+                style={{
+                  backgroundColor: isDarkMode ? "#4b5563" : "white",
+                  color: isDarkMode ? "#9ca3af" : "#6b7280",
+                  borderColor: isDarkMode ? "#6b7280" : "#dee2e6",
+                  borderLeft: "none",
+                }}
+              >
+                <i className="fa-solid fa-search"></i>
+              </span>
+            </div>
           </div>
 
           {(isLoading || isSearching) && (
             <div className="flex justify-center items-center py-5 text-lg text-blue-500">
-              <h4 className="text-center">Loading....</h4>
+              <h4
+                className="text-center"
+                style={{ color: isDarkMode ? "#f9fafb" : "#1f2937" }}
+              >
+                Loading....
+              </h4>
             </div>
           )}
 
           {!isLoading && !isSearching && products.length === 0 && !error && (
             <div className="text-center py-5">
-              <h4>No products found</h4>
+              <h4 style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}>
+                No products found
+              </h4>
             </div>
           )}
 
@@ -406,54 +445,143 @@ const ProductView = () => {
                 <div
                   className="card h-100 shadow-sm border-0 rounded-3 cursor-pointer"
                   onClick={() => handleAddToCart(p)}
-                  style={{ cursor: "pointer" }}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: isDarkMode ? "#374151" : "white",
+                    color: isDarkMode ? "#f9fafb" : "#1f2937",
+                    maxHeight: "420px",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
+                  {/* Product Image */}
                   {p.image ? (
                     <img
                       src={`http://127.0.0.1:8000/storage/${p.image}`}
                       className="card-img-top"
                       alt={p.product_name}
-                      style={{ height: "160px", objectFit: "contain" }}
+                      style={{
+                        height: "180px",
+                        objectFit: "cover",
+                        borderRadius: "12px 12px 0 0",
+                      }}
                     />
                   ) : (
                     <div
-                      className="d-flex align-items-center justify-content-center bg-light"
-                      style={{ height: "160px" }}
+                      className="d-flex align-items-center justify-content-center"
+                      style={{
+                        height: "180px",
+                        backgroundColor: isDarkMode ? "#4b5563" : "#f3f4f6",
+                        color: isDarkMode ? "#9ca3af" : "#6b7280",
+                        borderRadius: "12px 12px 0 0",
+                      }}
                     >
-                      No image
+                      <i
+                        className="fa-solid fa-image"
+                        style={{ fontSize: "48px" }}
+                      ></i>
                     </div>
                   )}
 
-                  <div className="card-body text-center">
-                    <h6 className="card-title fw-bold">{p.product_name}</h6>
-                    <p className="text-muted small mb-1">{p.description}</p>
-                    <p className="fw-semibold">₱{p.price}</p>
-                    <p className="text-muted small">
-                      Stock: {p.stocks?.quantity}
-                    </p>
-                    <p className="text-muted small mb-1">
-                      Expiration Date: {p.expiration_date}
-                    </p>
+                  {/* Product Details */}
+                  <div
+                    className="card-body d-flex flex-column p-3"
+                    style={{ flex: 1 }}
+                  >
+                    <h6
+                      className="card-title fw-bold mb-2"
+                      style={{ fontSize: "15px" }}
+                    >
+                      {p.product_name}
+                    </h6>
+
+                    {p.description && (
+                      <p
+                        className="small mb-2"
+                        style={{
+                          color: isDarkMode ? "#d1d5db" : "#6c757d",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          fontSize: "13px",
+                        }}
+                      >
+                        {p.description}
+                      </p>
+                    )}
+
+                    <div className="mt-auto">
+                      <p
+                        className="fw-bold mb-1"
+                        style={{ fontSize: "18px", color: "#4f46e5" }}
+                      >
+                        ₱{p.price}
+                      </p>
+
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span
+                          className="small"
+                          style={{
+                            color: isDarkMode ? "#9ca3af" : "#6c757d",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Stock:{" "}
+                          <span className="fw-semibold">
+                            {p.stocks?.quantity}
+                          </span>
+                        </span>
+                        <span
+                          className="small"
+                          style={{
+                            color: isDarkMode ? "#9ca3af" : "#6c757d",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Exp:{" "}
+                          {new Date(p.expiration_date).toLocaleDateString(
+                            "en-US",
+                            { month: "short", year: "numeric" }
+                          )}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                  {/* Action Buttons */}
+                  <div
+                    className="card-footer d-flex gap-2 p-2"
+                    style={{
+                      backgroundColor: isDarkMode ? "#4b5563" : "#f8f9fa",
+                      borderTop: `1px solid ${
+                        isDarkMode ? "#6b7280" : "#dee2e6"
+                      }`,
+                      borderRadius: "0 0 12px 12px",
+                    }}
+                  >
                     <button
-                      className="btn btn-sm btn-outline-primary"
+                      className="btn btn-sm btn-outline-primary flex-grow-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProduct(p);
                         setShowUpdateModal(true);
                       }}
+                      style={{ fontSize: "13px", padding: "6px" }}
                     >
+                      <i className="fa-solid fa-pen me-1"></i>
                       Update
                     </button>
                     <button
-                      className="btn btn-sm btn-outline-danger"
+                      className="btn btn-sm btn-outline-danger flex-grow-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteProduct(p.id);
                       }}
+                      style={{ fontSize: "13px", padding: "6px" }}
                     >
+                      <i className="fa-solid fa-trash me-1"></i>
                       Delete
                     </button>
                   </div>
@@ -463,57 +591,226 @@ const ProductView = () => {
           </div>
         </div>
 
-        <div className="col-md-3 border-start">
-          <h4>🛒 Cart ({cartItems.length})</h4>
-          {cartItems.length === 0 ? (
-            <p className="text-muted">Your cart is empty.</p>
-          ) : (
-            <ul className="list-group mb-3">
-              {cartItems.map((item) => (
-                <li key={item.id} className="list-group-item">
-                  <div className="d-flex justify-content-between">
-                    <span>{item.product_name}</span>
-                    <span>₱{item.price * item.quantity}</span>
+        <div className="col-md-3">
+          <div
+            className="card shadow-sm border-0"
+            style={{
+              borderRadius: "12px",
+              backgroundColor: isDarkMode ? "#374151" : "white",
+              position: "sticky",
+              top: "20px",
+            }}
+          >
+            <div className="card-body p-4">
+              {/* Cart Header */}
+              <div className="d-flex align-items-center justify-content-between mb-4">
+                <h5
+                  className="mb-0 fw-bold d-flex align-items-center gap-2"
+                  style={{ color: isDarkMode ? "#f9fafb" : "#1f2937" }}
+                >
+                  <i className="fa-solid fa-cart-shopping"></i>
+                  Cart
+                </h5>
+                <span
+                  className="badge rounded-pill"
+                  style={{
+                    backgroundColor: "#4f46e5",
+                    fontSize: "14px",
+                    padding: "6px 12px",
+                  }}
+                >
+                  {cartItems.length}
+                </span>
+              </div>
+
+              {/* Cart Items */}
+              {cartItems.length === 0 ? (
+                <div className="text-center py-4">
+                  <i
+                    className="fa-solid fa-cart-shopping mb-3"
+                    style={{
+                      fontSize: "48px",
+                      color: isDarkMode ? "#6b7280" : "#d1d5db",
+                    }}
+                  ></i>
+                  <p
+                    className="mb-0"
+                    style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
+                  >
+                    Your cart is empty
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div
+                    className="cart-items mb-3"
+                    style={{ maxHeight: "400px", overflowY: "auto" }}
+                  >
+                    {cartItems.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="mb-3 pb-3"
+                        style={{
+                          borderBottom:
+                            index !== cartItems.length - 1
+                              ? `1px solid ${
+                                  isDarkMode ? "#4b5563" : "#e5e7eb"
+                                }`
+                              : "none",
+                        }}
+                      >
+                        {/* Item Name and Price */}
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h6
+                            className="mb-0 fw-semibold"
+                            style={{
+                              color: isDarkMode ? "#f9fafb" : "#1f2937",
+                              fontSize: "14px",
+                              flex: 1,
+                            }}
+                          >
+                            {item.product_name}
+                          </h6>
+                          <span
+                            className="fw-bold ms-2"
+                            style={{
+                              color: isDarkMode ? "#f9fafb" : "#1f2937",
+                              fontSize: "14px",
+                            }}
+                          >
+                            ₱{(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center gap-2">
+                            <button
+                              className="btn btn-sm d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "28px",
+                                height: "28px",
+                                padding: "0",
+                                backgroundColor: isDarkMode
+                                  ? "#4b5563"
+                                  : "#f3f4f6",
+                                border: "none",
+                                borderRadius: "6px",
+                                color: isDarkMode ? "#f9fafb" : "#374151",
+                              }}
+                              onClick={() =>
+                                handleQuantityChange(item.id, item.quantity - 1)
+                              }
+                              disabled={item.quantity <= 1}
+                            >
+                              <i
+                                className="fa-solid fa-minus"
+                                style={{ fontSize: "10px" }}
+                              ></i>
+                            </button>
+
+                            <span
+                              className="fw-semibold"
+                              style={{
+                                color: isDarkMode ? "#f9fafb" : "#1f2937",
+                                minWidth: "30px",
+                                textAlign: "center",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {item.quantity}
+                            </span>
+
+                            <button
+                              className="btn btn-sm d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "28px",
+                                height: "28px",
+                                padding: "0",
+                                backgroundColor: isDarkMode
+                                  ? "#4b5563"
+                                  : "#f3f4f6",
+                                border: "none",
+                                borderRadius: "6px",
+                                color: isDarkMode ? "#f9fafb" : "#374151",
+                              }}
+                              onClick={() =>
+                                handleQuantityChange(item.id, item.quantity + 1)
+                              }
+                            >
+                              <i
+                                className="fa-solid fa-plus"
+                                style={{ fontSize: "10px" }}
+                              ></i>
+                            </button>
+                          </div>
+
+                          <button
+                            className="btn btn-sm d-flex align-items-center gap-1"
+                            style={{
+                              backgroundColor: "transparent",
+                              border: "none",
+                              color: "#dc2626",
+                              fontSize: "12px",
+                            }}
+                            onClick={() => handleRemoveFromCart(item.id)}
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="d-flex align-items-center mt-2">
-                    <span className="me-2">Quantity:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      className="form-control form-control-sm me-2"
-                      style={{ width: "60px" }}
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleQuantityChange(item.id, e.target.value)
-                      }
-                    />
+
+                  {/* Total and Checkout */}
+                  <div
+                    className="pt-3 mt-3"
+                    style={{
+                      borderTop: `2px solid ${
+                        isDarkMode ? "#4b5563" : "#e5e7eb"
+                      }`,
+                    }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <span
+                        className="fw-semibold"
+                        style={{
+                          color: isDarkMode ? "#d1d5db" : "#6b7280",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Subtotal
+                      </span>
+                      <span
+                        className="fw-bold"
+                        style={{
+                          color: isDarkMode ? "#f9fafb" : "#1f2937",
+                          fontSize: "18px",
+                        }}
+                      >
+                        ₱{totalPrice.toFixed(2)}
+                      </span>
+                    </div>
+
                     <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleRemoveFromCart(item.id)}
+                      className="btn btn-primary w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                      onClick={buyProductsInCart}
+                      style={{
+                        backgroundColor: "#4f46e5",
+                        border: "none",
+                        borderRadius: "8px",
+                        padding: "12px",
+                        fontSize: "15px",
+                      }}
                     >
-                      Remove
+                      <i className="fa-solid fa-credit-card"></i>
+                      Purchase
                     </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {cartItems.length > 0 && (
-            <>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="mb-0">Total:</h5>
-                <h5 className="mb-0 text-black fw-bold">
-                  ₱{totalPrice.toFixed(2)}
-                </h5>
-              </div>
-              <button
-                className="btn btn-primary w-100"
-                onClick={buyProductsInCart}
-              >
-                Buy Now
-              </button>
-            </>
-          )}
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

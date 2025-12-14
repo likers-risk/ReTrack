@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Home() {
+  const { isDarkMode } = useTheme();
   const [totalSales, setTotalSales] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [products, setProducts] = useState([]);
@@ -47,7 +49,7 @@ export default function Home() {
     <div
       className="rounded"
       style={{
-        backgroundColor: "#F3F2EC",
+        backgroundColor: isDarkMode ? "#1f2937" : "#F3F2EC",
         minHeight: "100vh",
         padding: "20px",
       }}
@@ -99,36 +101,170 @@ export default function Home() {
         </div>
       </div>
 
-      
-      <div className="card p-3 shadow rounded-4 mb-4 bg-white">
-        <h5 className="fw-bold mb-3">Recently Added Products</h5>
+      {/* Recently Added Products */}
+      <div
+        className="card p-3 shadow rounded-4 mb-4"
+        style={{
+          backgroundColor: isDarkMode ? "#374151" : "white",
+          border: isDarkMode ? "1px solid #4b5563" : "none",
+        }}
+      >
+        <h5
+          className="fw-bold mb-3"
+          style={{ color: isDarkMode ? "#f9fafb" : "#1f2937" }}
+        >
+          Recently Added Products
+        </h5>
         <div className="table-responsive">
-          <table className="table table-striped table-bordered mb-0 align-middle">
-            <thead className="table-dark">
+          <table className="table mb-0" style={{ borderCollapse: "collapse" }}>
+            <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Expiration</th>
-                <th>Category</th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  ID
+                </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Name
+                </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Price
+                </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Quantity
+                </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Expiration
+                </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Category
+                </th>
               </tr>
             </thead>
             <tbody>
               {recentProducts.length > 0 ? (
                 recentProducts.map((p) => (
                   <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td>{p.product_name}</td>
-                    <td>₱{p.price}</td>
-                    <td>{p.stocks?.quantity}</td>
-                    <td>{p.expiration_date}</td>
-                    <td>{p.category_id}</td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.id}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.product_name}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      ₱{p.price}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.stocks?.quantity}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.expiration_date}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.category_id}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center">
+                  <td
+                    colSpan="6"
+                    className="text-center"
+                    style={{
+                      color: isDarkMode ? "#9ca3af" : "#6b7280",
+                      backgroundColor: isDarkMode ? "#374151" : "white",
+                      padding: "2rem",
+                      border: "1px solid #dee2e6",
+                    }}
+                  >
                     No products found
                   </td>
                 </tr>
@@ -139,7 +275,13 @@ export default function Home() {
       </div>
 
       {/* Low Stock Alerts */}
-      <div className="card p-3 shadow rounded-4 bg-white">
+      <div
+        className="card p-3 shadow rounded-4"
+        style={{
+          backgroundColor: isDarkMode ? "#374151" : "#93c5fd",
+          border: isDarkMode ? "1px solid #4b5563" : "none",
+        }}
+      >
         <h5 className="fw-bold mb-3 text-danger">Low Stock Alerts</h5>
         {lowStockProducts.length > 0 ? (
           <ul className="list-group">
@@ -147,6 +289,11 @@ export default function Home() {
               <li
                 key={p.id}
                 className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                style={{
+                  backgroundColor: isDarkMode ? "#4b5563" : "white",
+                  color: isDarkMode ? "#f9fafb" : "#1f2937",
+                  borderColor: isDarkMode ? "#6b7280" : "#6b7280",
+                }}
               >
                 <span className="fw-semibold">{p.product_name}</span>
                 <span className="badge bg-danger rounded-pill">
@@ -156,7 +303,12 @@ export default function Home() {
             ))}
           </ul>
         ) : (
-          <p className="text-success mb-0">No low stock items!</p>
+          <p
+            className="mb-0"
+            style={{ color: isDarkMode ? "#86efac" : "#16a34a" }}
+          >
+            No low stock items!
+          </p>
         )}
       </div>
     </div>

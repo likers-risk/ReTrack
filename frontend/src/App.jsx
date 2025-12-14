@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import Login from "./pages/loginform";
 import Register from "./pages/registerform";
@@ -15,7 +16,7 @@ import EditProfile from "./components/EditProfile";
 
 function App() {
   return (
-    <>
+    <ThemeProvider>
       <div>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -36,7 +37,7 @@ function App() {
           <Route path="dashboard/orders" element={<ManageOrders />} />
         </Routes>
       </div>
-    </>
+    </ThemeProvider>
   );
 }
 
