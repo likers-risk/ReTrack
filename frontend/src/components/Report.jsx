@@ -171,13 +171,16 @@ const Reports = () => {
       <div className="card p-3 shadow-sm">
         <h5 className="fw-bold text-success">Top Selling Products</h5>
         {topProducts.length > 0 ? (
-          <ol className="mt-2">
+          <ul className="list-group  mt-2">
             {topProducts.map((product, index) => (
-              <li key={index} className="fw-semibold">
-                {product.name} — {product.sold} sold
+              <li
+                key={index}
+                className="list-group-item d-flex justify-content-between align-items-center"
+              >
+                {product.name}
               </li>
             ))}
-          </ol>
+          </ul>
         ) : (
           <p className="text-muted">No sales data available.</p>
         )}

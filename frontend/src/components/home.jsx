@@ -60,7 +60,7 @@ export default function Home() {
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-md-3">
           <div
-            className="card p-3 shadow rounded-4 bg-primary text-white h-100"
+            className="card p-3 shadow rounded-4 bg-primary text-white h-100 text-center"
             style={{ minWidth: "160px" }}
           >
             <h5>Total Sales</h5>
@@ -70,7 +70,7 @@ export default function Home() {
 
         <div className="col-12 col-sm-6 col-md-3">
           <div
-            className="card p-3 shadow rounded-4 bg-success text-white h-100"
+            className="card p-3 shadow rounded-4 bg-success text-white h-100 text-center"
             style={{ minWidth: "160px" }}
           >
             <h5>Total Revenue</h5>
@@ -80,7 +80,7 @@ export default function Home() {
 
         <div className="col-12 col-sm-6 col-md-3">
           <div
-            className="card p-3 shadow rounded-4 text-white h-100"
+            className="card p-3 shadow rounded-4 text-white h-100 text-center"
             style={{ backgroundColor: "#3C467B", minWidth: "160px" }}
           >
             <h5>Total Products</h5>
@@ -90,11 +90,11 @@ export default function Home() {
 
         <div className="col-12 col-sm-6 col-md-3">
           <div
-            className="card p-3 shadow rounded-4 bg-warning text-white h-100"
+            className="card p-3 shadow rounded-4 bg-danger text-white h-100 text-center"
             style={{ minWidth: "160px" }}
           >
-            <h5>Low Stock Items</h5>
-            <p className="fs-4 fw-bold text-danger mb-0">
+            <h5 className="">Low Stock Items</h5>
+            <p className="fs-4 fw-bold text-white mb-0">
               {lowStockProducts.length}
             </p>
           </div>
@@ -185,6 +185,17 @@ export default function Home() {
                 >
                   Category
                 </th>
+                <th
+                  style={{
+                    backgroundColor: isDarkMode ? "#1f2937" : "#212529",
+                    color: "white",
+                    padding: "12px",
+                    fontWeight: "600",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Cost
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -251,6 +262,16 @@ export default function Home() {
                     >
                       {p.category_id}
                     </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        backgroundColor: isDarkMode ? "#374151" : "white",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {p.cost}
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -276,13 +297,13 @@ export default function Home() {
 
       {/* Low Stock Alerts */}
       <div
-        className="card p-3 shadow rounded-4"
+        className="card p-3 shadow rounded-4 bg-danger"
         style={{
-          backgroundColor: isDarkMode ? "#374151" : "#93c5fd",
+          backgroundColor: isDarkMode ? "#374151" : "none",
           border: isDarkMode ? "1px solid #4b5563" : "none",
         }}
       >
-        <h5 className="fw-bold mb-3 text-danger">Low Stock Alerts</h5>
+        <h5 className="fw-bold mb-3 text-white">Low Stock Alerts</h5>
         {lowStockProducts.length > 0 ? (
           <ul className="list-group">
             {lowStockProducts.map((p) => (
