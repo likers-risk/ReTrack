@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToStore;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Product extends Model
 {
     // SoftDeletes: "deleting" a product archives it, so its sales history stays in reports.
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, BelongsToStore;
 
     protected $fillable = [
         'category_id',

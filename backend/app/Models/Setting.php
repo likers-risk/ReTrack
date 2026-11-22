@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToStore;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Setting extends Model
 {
+    use BelongsToStore;
+
     protected $fillable = ['key', 'value'];
 
     public const DEFAULTS = [

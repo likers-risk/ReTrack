@@ -5,6 +5,7 @@ import { API_URL } from "../config";
 
 
 export default function Signup() {
+  const [storeName, setStoreName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +34,7 @@ export default function Signup() {
           Accept: "application/json",
         },
         body: JSON.stringify({
+          store_name: storeName,
           username,
           email,
           password,
@@ -44,6 +46,7 @@ export default function Signup() {
 
       if (response.ok) {
         setMessage(data.message);
+        setStoreName("");
         setUsername("");
         setEmail("");
         setPassword("");
@@ -80,8 +83,11 @@ export default function Signup() {
                     className="card-title text-uppercase fw-bold"
                     style={{ color: "darkblue" }}
                   >
-                    Sign Up
+                    Create Your Store
                   </h2>
+                  <small className="text-muted">
+                    You'll be the Admin. Add your staff after logging in.
+                  </small>
                 </div>
 
                 {error && (
@@ -96,6 +102,20 @@ export default function Signup() {
                 )}
 
                 <form onSubmit={handleSignup}>
+                  <div className="mb-3 input-group">
+                    <span className="input-group-text">
+                      <i className="fa fa-store"></i>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Store name (e.g. Prince Store)"
+                      value={storeName}
+                      onChange={(e) => setStoreName(e.target.value)}
+                      maxLength={255}
+                      required
+                    />
+                  </div>
                   <div className="mb-3 input-group">
                     <span className="input-group-text">
                       <i className="fa fa-user"></i>

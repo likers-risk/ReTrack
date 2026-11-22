@@ -10,8 +10,10 @@ import { apiFetch, errorMessage } from "./api";
  *   (client_ref), so syncing twice never records anything twice.
  */
 
-const PRODUCTS_KEY = "retrack_offline_products";
-const QUEUE_KEY = "retrack_offline_queue";
+// Saved per account, so two stores sharing one device never see each other's data.
+const accountKey = () => localStorage.getItem("userId") || "guest";
+const productsKey = () => `retrack_offline_products_${accountKey()}`;
+const queueKey = () => `retrack_offline_queue_${accountKey()}`;
 const listeners = new Set();
 
 const read = (key, fallback) => {
@@ -49,10 +51,10 @@ export function onOfflineChange(fn) {
 
 // ---------- Products saved on this device ----------
 export function saveProducts(products) {
-  write(PRODUCTS_KEY, { savedAt: new Date().toISOString(), products });
+  write(productsKey(), { savedAt: new Date().toISOString(), products });
 }
 export function getSavedProducts() {
-  return read(PRODUCTS_KEY, { savedAt: null, products: [] });
+  return read(productsKey(), { savedAt: null, products: [] });
 }
 /** Change a saved product's stock so the screen stays correct while offline. */
 function adjustSavedStock(productId, change) {
@@ -68,15 +70,15 @@ function adjustSavedStock(productId, change) {
         }
       : p
   );
-  write(PRODUCTS_KEY, saved);
+  write(productsKey(), saved);
 }
 
 // ---------- Queue of things to sync ----------
 export function getQueue() {
-  return read(QUEUE_KEY, []);
+  return read(queueKey(), []);
 }
 function setQueue(queue) {
-  write(QUEUE_KEY, queue);
+  write(queueKey(), queue);
   notify();
 }
 

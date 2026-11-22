@@ -134,7 +134,7 @@ const Dashboard = () => {
               className="m-0 small"
               style={{ color: isDarkMode ? "#d1d5db" : "#6b7280" }}
             >
-              Inventory System
+              {localStorage.getItem("storeName") || "Inventory System"}
             </p>
           </div>
         </div>

@@ -45,7 +45,7 @@ export const peso = (n) =>
 
 /** Log out without wiping offline data that hasn't been synced yet. */
 export function clearLogin() {
-  ["authToken", "token", "username", "userId", "role"].forEach((k) =>
+  ["authToken", "token", "username", "userId", "role", "storeName"].forEach((k) =>
     localStorage.removeItem(k)
   );
 }

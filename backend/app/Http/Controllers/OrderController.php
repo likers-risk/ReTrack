@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -23,7 +24,11 @@ class OrderController extends Controller
         try {
             $validatedData = $request->validate([
                 'cart_items' => 'required|array|min:1',
-                'cart_items.*.product_id' => 'required|uuid|exists:products,id',
+                // Products must belong to this user's store
+                'cart_items.*.product_id' => [
+                    'required', 'uuid',
+                    Rule::exists('products', 'id')->where('store_id', $request->user()->store_id),
+                ],
                 'cart_items.*.quantity' => 'required|integer|min:1',
                 'payment_method' => 'nullable|in:cash,gcash,card,other',
                 // Sent by the offline queue: a unique id per sale + when it really happened
@@ -129,7 +134,9 @@ class OrderController extends Controller
 
             // Low-stock alerts go to everyone (Admin and Staff).
             if ($lowStockNotifications) {
-                $userIds = User::where('status', 'approved')->pluck('id');
+                $userIds = User::where('status', 'approved')
+                    ->where('store_id', $user->store_id)
+                    ->pluck('id');
                 foreach ($lowStockNotifications as $message) {
                     foreach ($userIds as $userId) {
                         Notification::create([
@@ -180,7 +187,9 @@ class OrderController extends Controller
 
         // Profit = (selling price - cost) x quantity, for every item sold.
         $revenue = DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->where('orders.store_id', request()->user()->store_id)
             ->sum(DB::raw('order_items.quantity * (order_items.list_price - COALESCE(order_items.unit_cost, products.cost))'));
 
         return response()->json([

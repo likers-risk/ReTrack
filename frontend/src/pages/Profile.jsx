@@ -173,7 +173,10 @@ const Profile = ({ userId }) => {
             style={{ width: "80px", height: "80px", objectFit: "cover" }}
           />
           <h6 className="fw-semibold mb-0">{user.username}</h6>
-          <small className="text-muted">{user.role}</small>
+          <small className="text-muted">
+            {user.role}
+            {user.store?.name ? ` · ${user.store.name}` : ""}
+          </small>
           <small>{user.email}</small>
         </div>
 

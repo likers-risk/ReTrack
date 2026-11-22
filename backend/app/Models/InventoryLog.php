@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToStore;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class InventoryLog extends Model
 {
+    use BelongsToStore;
+
     protected $fillable = [
         'product_id', 'product_name', 'user_id', 'username', 'type',
         'quantity_change', 'quantity_after', 'note', 'client_ref', 'created_at',

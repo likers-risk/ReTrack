@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Order_item;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,8 @@ class UserController extends Controller
         $validatedData['status'] = 'approved';
 
         $validatedData['password'] = Hash::make($validatedData['password']);
+        // New staff join the Admin's own store.
+        $validatedData['store_id'] = $user->store_id;
 
         $users = User::create($validatedData);
 
@@ -53,28 +56,33 @@ class UserController extends Controller
 
 
     /**
-     * Public sign-up. Every account created here is an Admin
-     * and can log in right away.
-     * (Staff accounts are created by an Admin from "Add Staff".)
+     * Public sign-up: creates a brand-new, empty store with this person as its Admin.
+     * (Staff for that store are added by its Admin from "Add Staff".)
      */
     public function signup(Request $request)
     {
         $validatedData = $request->validate([
+            'store_name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        User::create([
-            'username' => $validatedData['username'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => 'Admin',
-            'status' => 'approved',
-        ]);
+        DB::transaction(function () use ($validatedData) {
+            $store = Store::create(['name' => trim($validatedData['store_name'])]);
+
+            User::create([
+                'username' => $validatedData['username'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'role' => 'Admin',
+                'status' => 'approved',
+                'store_id' => $store->id,
+            ]);
+        });
 
         return response()->json([
-            'message' => 'Admin account created! You can now log in.',
+            'message' => 'Your store and Admin account are ready! You can now log in.',
             'can_login' => true,
         ], 201);
     }
@@ -104,6 +112,8 @@ class UserController extends Controller
         $token = $user->createToken('user-auth-token')->plainTextToken;
 
 
+        $user->load('store');
+
         return response()->json([
             'message' => 'Login Successfully',
             'User' => $user,
@@ -122,7 +132,10 @@ class UserController extends Controller
 
     public function index($userId)
     {
-        $userProfile = User::find($userId);
+        // Only people from the same store can see each other's profile.
+        $userProfile = User::with('store')
+            ->where('store_id', request()->user()->store_id)
+            ->find($userId);
 
         if (!$userProfile) {
             return response()->json([
@@ -172,6 +185,7 @@ class UserController extends Controller
         }
 
         $users = User::where('status', 'pending')
+            ->where('store_id', $request->user()->store_id)
             ->orderBy('created_at')
             ->get(['id', 'username', 'email', 'role', 'created_at']);
 
@@ -185,7 +199,9 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $user = User::where('status', 'pending')->find($id);
+        $user = User::where('status', 'pending')
+            ->where('store_id', $request->user()->store_id)
+            ->find($id);
         if (!$user) {
             return response()->json(['message' => 'Pending user not found.'], 404);
         }
@@ -203,7 +219,9 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $user = User::where('status', 'pending')->find($id);
+        $user = User::where('status', 'pending')
+            ->where('store_id', $request->user()->store_id)
+            ->find($id);
         if (!$user) {
             return response()->json(['message' => 'Pending user not found.'], 404);
         }

@@ -11,14 +11,22 @@ use Illuminate\Support\Facades\DB;
 class SettingController extends Controller
 {
     /** Everyone can read the settings (the app needs them for alerts and suggested prices). */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(['settings' => Setting::allValues()]);
+        return response()->json([
+            'settings' => Setting::allValues(),
+            'store_name' => $request->user()->store?->name,
+        ]);
     }
 
     /** Admin: change the pricing formula and alert thresholds. */
     public function update(Request $request)
     {
+        $request->validate(['store_name' => 'nullable|string|max:255']);
+        if ($request->filled('store_name') && $request->user()->store) {
+            $request->user()->store->update(['name' => trim($request->store_name)]);
+        }
+
         $data = $request->validate([
             'markup_percent' => 'required|numeric|min:0|max:1000',
             'low_stock_threshold' => 'required|integer|min:0|max:100000',
@@ -47,6 +55,7 @@ class SettingController extends Controller
                 ? "Settings saved. Updated the price of {$updated} auto-priced product(s)."
                 : 'Settings saved.',
             'settings' => Setting::allValues(),
+            'store_name' => $request->user()->fresh()->store?->name,
         ]);
     }
 }

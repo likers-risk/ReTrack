@@ -29,6 +29,7 @@ class ReportController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->where('orders.store_id', $request->user()->store_id)
             ->whereBetween('orders.created_at', [$from->toDateTimeString(), $to->toDateTimeString()])
             ->select([
                 'orders.id as order_id',

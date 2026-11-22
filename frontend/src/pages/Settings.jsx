@@ -10,7 +10,7 @@ export default function Settings() {
   useEffect(() => {
     apiFetch("/settings")
       .then(({ ok, data }) => {
-        if (ok) setForm(data.settings);
+        if (ok) setForm({ ...data.settings, store_name: data.store_name || "" });
         else setMessage({ type: "danger", text: errorMessage(data) });
       })
       .catch(() => setMessage({ type: "danger", text: "Can't reach the server. Settings need internet." }));
@@ -23,7 +23,8 @@ export default function Settings() {
     try {
       const { ok, data } = await apiFetch("/settings", { method: "PUT", body: form });
       if (ok) {
-        setForm(data.settings);
+        setForm({ ...data.settings, store_name: data.store_name || "" });
+        localStorage.setItem("storeName", data.store_name || "");
         setMessage({ type: "success", text: data.message });
       } else {
         setMessage({ type: "danger", text: errorMessage(data) });
@@ -47,6 +48,20 @@ export default function Settings() {
         !message && <p>Loading…</p>
       ) : (
         <form onSubmit={handleSave} className="card card-body shadow-sm">
+          <h6 className="fw-bold">Store</h6>
+          <label className="form-label" htmlFor="store_name">
+            Store name
+          </label>
+          <input
+            id="store_name"
+            type="text"
+            className="form-control mb-4"
+            value={form.store_name}
+            onChange={set("store_name")}
+            maxLength={255}
+            required
+          />
+
           <h6 className="fw-bold">Automated pricing</h6>
           <label className="form-label" htmlFor="markup">
             Markup over cost (%)

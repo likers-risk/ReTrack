@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\InventoryLog;
+use App\Models\Order;
 use App\Models\Order_item;
 use App\Models\Product;
 use App\Models\Setting;
@@ -40,7 +41,7 @@ class ProductController extends Controller
             'product_name' => 'required|string|max:255',
             'barcode' => [
                 'nullable', 'string', 'max:64',
-                Rule::unique('products', 'barcode')->whereNull('deleted_at'),
+                Rule::unique('products', 'barcode')->where('store_id', $request->user()->store_id)->whereNull('deleted_at'),
             ],
             'category_name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -121,7 +122,7 @@ class ProductController extends Controller
             'product_name' => 'sometimes|string|max:255',
             'barcode' => [
                 'nullable', 'string', 'max:64',
-                Rule::unique('products', 'barcode')->ignore($product->id)->whereNull('deleted_at'),
+                Rule::unique('products', 'barcode')->ignore($product->id)->where('store_id', $request->user()->store_id)->whereNull('deleted_at'),
             ],
             'category_name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -363,6 +364,8 @@ class ProductController extends Controller
             DB::raw('SUM(quantity) as total_sold')
         )
             ->with('product')
+            // only this store's orders
+            ->whereIn('order_id', Order::select('id'))
             ->groupBy('product_id')
             ->orderByDesc('total_sold')
             ->take(5)
