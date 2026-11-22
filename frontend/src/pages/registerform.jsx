@@ -136,14 +136,19 @@ export default function Register() {
               <label htmlFor="role" className="form-label">
                 Role
               </label>
-              <input
+              <select
                 id="role"
-                type="text"
-                className="form-control"
+                className="form-select"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select role
+                </option>
+                <option value="Staff">Staff</option>
+                <option value="Admin">Admin</option>
+              </select>
             </div>
 
             <div className="d-grid gap-2">

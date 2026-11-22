@@ -21,6 +21,7 @@ const ProductView = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const navigate = useNavigate();
+  const isAdmin = localStorage.getItem("role") === "Admin";
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -551,6 +552,7 @@ const ProductView = () => {
                   </div>
 
                   {/* Action Buttons */}
+                  {isAdmin && (
                   <div
                     className="card-footer d-flex gap-2 p-2"
                     style={{
@@ -585,6 +587,7 @@ const ProductView = () => {
                       Delete
                     </button>
                   </div>
+                  )}
                 </div>
               </div>
             ))}

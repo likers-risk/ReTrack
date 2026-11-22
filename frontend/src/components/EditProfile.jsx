@@ -290,8 +290,8 @@ const EditProfile = () => {
                 )}
               </div>
 
-              {/* Actions for Owner */}
-              {userRole === "Owner" && (
+              {/* Actions for Admin */}
+              {userRole === "Admin" && (
                 <div className="mt-4">
                   <Link
                     to="/register"

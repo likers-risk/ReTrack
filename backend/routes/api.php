@@ -6,18 +6,29 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\AdminOnly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group( function () {
     Route::post('/login',[UserController::class, 'login']);
+    Route::post('/signup',[UserController::class, 'signup']);
 });
 
 
 Route::middleware('auth:sanctum')->group( function () {
-    Route::post('/register', [UserController::class, 'register']);     
+    // Admin only: managing accounts and changing products
+    Route::middleware(AdminOnly::class)->group(function () {
+        Route::post('/register', [UserController::class, 'register']);
+        Route::get('/users/pending', [UserController::class, 'pendingUsers']);
+        Route::put('/users/{id}/approve', [UserController::class, 'approveUser']);
+        Route::delete('/users/{id}/reject', [UserController::class, 'rejectUser']);
+        Route::apiResource('products', ProductController::class)->only(['store', 'update', 'destroy']);
+    });
+
     Route::post('/logout',[UserController::class, 'logout']);
-    Route::apiResource('products',ProductController::class);
+    // Everyone logged in (Admin and Staff) can view products
+    Route::apiResource('products', ProductController::class)->only(['index', 'show']);
     Route::post('/purchase',[OrderController::class, 'purchaseProducts']);
     Route::get('/orders/{id}',[OrderController::class, 'customerOrders']);
     Route::get('/search-product',[ProductController::class, 'searchProduct']);

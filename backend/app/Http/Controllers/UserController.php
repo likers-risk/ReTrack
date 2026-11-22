@@ -19,7 +19,7 @@ class UserController extends Controller
 
         $user = $request->user();
 
-        if ($user->role !== 'Owner') {
+        if ($user->role !== 'Admin') {
             return response()->json([
                 'message' => 'Unauthorized.'
             ], 403);
@@ -27,17 +27,19 @@ class UserController extends Controller
 
 
         $validatedData = $request->validate([
-            'username' => 'required',
-            'email' => 'required|email',
+            'username' => 'required|unique:users,username',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required',
-            'role' => 'required',
+            'role' => 'required|in:Staff,Admin',
             'image' => 'nullable|image|mimes:png,jpeg,gif,svg,webp|max:2048'
         ]);
 
-        $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images', 'public');
+            $validatedData['image'] = $request->file('image')->store('images', 'public');
         }
+
+        // Accounts created by an Admin can log in right away.
+        $validatedData['status'] = 'approved';
 
         $validatedData['password'] = Hash::make($validatedData['password']);
 
@@ -50,21 +52,50 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Public sign-up. Every account created here is an Admin
+     * and can log in right away.
+     */
+    public function signup(Request $request)
+    {
+        $validatedData = $request->validate([
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        User::create([
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'role' => 'Admin',
+            'status' => 'approved',
+        ]);
+
+        return response()->json([
+            'message' => 'Account created! You can now log in.'
+        ], 201);
+    }
+
     public function login(Request $request)
     {
         $request->validate([
             'username' => 'required|string',
             'password' => 'required',
-            'role' => 'required'
         ]);
 
-        $user = User::where('username', $request->username)
-            ->where('role', $request->role)
-            ->first();
+        // The role comes from the account itself, not from the login form.
+        $user = User::where('username', $request->username)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'Error' => 'Incorrect Username or Password'
+            ]);
+        }
+
+        if ($user->status !== 'approved') {
+            throw ValidationException::withMessages([
+                'Error' => 'Your account is still waiting for admin approval.'
             ]);
         }
 
@@ -131,5 +162,53 @@ class UserController extends Controller
         ]);
     }
 
-    
+    /** List accounts waiting for approval (Admin only). */
+    public function pendingUsers(Request $request)
+    {
+        if ($request->user()->role !== 'Admin') {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $users = User::where('status', 'pending')
+            ->orderBy('created_at')
+            ->get(['id', 'username', 'email', 'role', 'created_at']);
+
+        return response()->json(['users' => $users]);
+    }
+
+    /** Approve a pending account (Admin only). */
+    public function approveUser(Request $request, $id)
+    {
+        if ($request->user()->role !== 'Admin') {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $user = User::where('status', 'pending')->find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Pending user not found.'], 404);
+        }
+
+        $user->status = 'approved';
+        $user->save();
+
+        return response()->json(['message' => "{$user->username} has been approved."]);
+    }
+
+    /** Reject (delete) a pending account (Admin only). */
+    public function rejectUser(Request $request, $id)
+    {
+        if ($request->user()->role !== 'Admin') {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $user = User::where('status', 'pending')->find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Pending user not found.'], 404);
+        }
+
+        $username = $user->username;
+        $user->delete();
+
+        return response()->json(['message' => "{$username}'s sign-up was rejected."]);
+    }
 }

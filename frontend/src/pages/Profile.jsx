@@ -194,6 +194,14 @@ const Profile = ({ userId }) => {
           >
             <i className="fa fa-bell me-2"></i>Notifications
           </button>
+          {user.role === "Admin" && (
+            <button
+              className="btn btn-outline-primary text-start"
+              onClick={() => handleNavigate("approvals")}
+            >
+              <i className="fa fa-user-check me-2"></i>Pending Sign-ups
+            </button>
+          )}
           <button
             className="btn btn-outline-secondary text-start"
             onClick={toggleTheme}

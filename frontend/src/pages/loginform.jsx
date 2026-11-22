@@ -5,7 +5,6 @@ import logo from "../assets/Retrack.png";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [Token, setToken] = useState("");
@@ -27,7 +26,6 @@ export default function Login() {
         body: JSON.stringify({
           username: username,
           password: password,
-          role: role,
         }),
       });
 
@@ -44,8 +42,8 @@ export default function Login() {
         navigate("/dashboard");
       } else {
         const errorMessage =
+          (data.errors && Object.values(data.errors).flat().join(" ")) ||
           data.message ||
-          (data.errors && Object.values(data.errors).flat().join(";")) ||
           "An Unknown Error Occurred.";
         setError(errorMessage);
       }
@@ -71,7 +69,7 @@ export default function Login() {
                     className="card-title text-uppercase fw-bold"
                     style={{ color: "darkblue" }}
                   >
-                    ADMIN
+                    LOGIN
                   </h2>
                 </div>
                 <form onSubmit={handleLogin}>
@@ -119,34 +117,6 @@ export default function Login() {
                     />
                   </div>
 
-                  <div className="mb-3 d-flex flex-row">
-                    <div className="mr-5">
-                      <label htmlFor="role">Role:</label>
-                    </div>
-                    <div className="ml-5 rounded-0">
-                      <select
-                        id="role"
-                        name="role"
-                        className="rounded-2 text-dark"
-                        style={{ marginLeft: "10px" }}
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        required
-                      >
-                        <option
-                          value=""
-                          disabled
-                          hidden
-                          style={{ color: "#999" }}
-                        >
-                          Select
-                        </option>
-                        <option value="Staff">staff</option>
-                        <option value="Admin">admin</option>
-                      </select>
-                    </div>
-                  </div>
-
                   <div className="d-grid gap-2">
                     <button
                       type="submit"
@@ -160,6 +130,10 @@ export default function Login() {
                     <Link to="/retrieve">
                       <p>Forget Password?</p>
                     </Link>
+                  </div>
+                  <div className="text-center">
+                    Don&apos;t have an account?{" "}
+                    <Link to="/signup">Create one</Link>
                   </div>
                 </form>
               </div>

@@ -389,13 +389,15 @@ const Dashboard = () => {
               collapsed={isCollapsed}
               isDarkMode={isDarkMode}
             />
-            <SidebarLink
-              to="add-item"
-              icon="fa-clipboard-check"
-              label="Add Item"
-              collapsed={isCollapsed}
-              isDarkMode={isDarkMode}
-            />
+            {localStorage.getItem("role") === "Admin" && (
+              <SidebarLink
+                to="add-item"
+                icon="fa-clipboard-check"
+                label="Add Item"
+                collapsed={isCollapsed}
+                isDarkMode={isDarkMode}
+              />
+            )}
             <SidebarLink
               to="sales"
               icon="fa-chart-bar"
