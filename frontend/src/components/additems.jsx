@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import BarcodeScanner from "./BarcodeScanner";
+import ImagePicker from "./ImagePicker";
 
 const AddItems = () => {
   const [product_name, setProductName] = useState("");
@@ -262,16 +263,10 @@ const AddItems = () => {
                 </div>
 
                 <div className="col-12">
-                  <label htmlFor="image" className="form-label fw-semibold">
-                    Upload Image:
+                  <label className="form-label fw-semibold">
+                    Product Photo (optional):
                   </label>
-                  <input
-                    type="file"
-                    id="image"
-                    onChange={(e) => setImage(e.target.files[0])}
-                    accept="image/*"
-                    className="form-control"
-                  />
+                  <ImagePicker value={image} onChange={setImage} />
                 </div>
               </div>
 

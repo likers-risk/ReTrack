@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { API_URL } from "../config";
 import BarcodeScanner from "./BarcodeScanner";
+import ImagePicker from "./ImagePicker";
 
 const ProductView = () => {
   const { isDarkMode } = useTheme();
@@ -1045,13 +1046,17 @@ const ProductView = () => {
                   }
                 />
 
-                <input
-                  type="file"
-                  className="form-control mb-2"
-                  onChange={(e) =>
+                <ImagePicker
+                  value={selectedProduct.imageFile || null}
+                  currentUrl={
+                    selectedProduct.image
+                      ? `${API_URL}/storage/${selectedProduct.image}`
+                      : null
+                  }
+                  onChange={(file) =>
                     setSelectedProduct((prev) => ({
                       ...prev,
-                      imageFile: e.target.files[0],
+                      imageFile: file,
                     }))
                   }
                 />
