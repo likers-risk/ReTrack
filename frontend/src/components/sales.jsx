@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { API_URL } from "../config";
 
 ChartJS.register(
   CategoryScale,
@@ -39,7 +40,7 @@ const Sales = () => {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/sales", {
+        const response = await fetch(`${API_URL}/api/sales`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
 

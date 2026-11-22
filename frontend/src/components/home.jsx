@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { API_URL } from "../config";
 
 export default function Home() {
   const { isDarkMode } = useTheme();
@@ -14,14 +15,14 @@ export default function Home() {
 
     const fetchData = async () => {
       try {
-        const salesRes = await fetch("http://127.0.0.1:8000/api/total-sales", {
+        const salesRes = await fetch(`${API_URL}/api/total-sales`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const salesData = await salesRes.json();
         setTotalSales(salesData.total_sales || 0);
 
         const revenueRes = await fetch(
-          "http://127.0.0.1:8000/api/sales-revenue",
+          `${API_URL}/api/sales-revenue`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -29,7 +30,7 @@ export default function Home() {
         const revenueData = await revenueRes.json();
         setTotalRevenue(revenueData.revenue || 0);
 
-        const productsRes = await fetch("http://127.0.0.1:8000/api/products", {
+        const productsRes = await fetch(`${API_URL}/api/products`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const productsData = await productsRes.json();

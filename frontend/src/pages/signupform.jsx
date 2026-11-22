@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/Retrack.png";
+import { API_URL } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export default function Signup() {
   const [username, setUsername] = useState("");

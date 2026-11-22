@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
 import "../CSS/User.css";
 import "../CSS/Profile.css";
+import { API_URL } from "../config";
 
 const Profile = ({ userId }) => {
   const [user, setUser] = useState(null);
@@ -26,7 +27,7 @@ const Profile = ({ userId }) => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/user-profile/${userId}`,
+          `${API_URL}/api/user-profile/${userId}`,
           {
             method: "GET",
             headers: {
@@ -61,7 +62,7 @@ const Profile = ({ userId }) => {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/logout", {
+      const response = await fetch(`${API_URL}/api/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,7 +164,7 @@ const Profile = ({ userId }) => {
           <img
             src={
               user.image
-                ? `http://127.0.0.1:8000/storage/${user.image}`
+                ? `${API_URL}/storage/${user.image}`
                 : UserProfile
             }
             alt="User profile"

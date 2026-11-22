@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 const Reports = () => {
   const [totalSales, setTotalSales] = useState(0);
@@ -20,7 +21,7 @@ const Reports = () => {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/total-sales", {
+        const response = await fetch(`${API_URL}/api/total-sales`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -44,7 +45,7 @@ const Reports = () => {
       const authToken = localStorage.getItem("authToken");
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/sales-revenue",
+          `${API_URL}/api/sales-revenue`,
           {
             method: "GET",
             headers: {
@@ -69,7 +70,7 @@ const Reports = () => {
     const fetchLowStock = async () => {
       const authToken = localStorage.getItem("authToken");
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/low-stock", {
+        const response = await fetch(`${API_URL}/api/low-stock`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -92,7 +93,7 @@ const Reports = () => {
     const fetchTopProducts = async () => {
       const authToken = localStorage.getItem("authToken");
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/top-products", {
+        const response = await fetch(`${API_URL}/api/top-products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

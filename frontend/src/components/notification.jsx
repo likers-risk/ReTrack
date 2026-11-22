@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -20,7 +21,7 @@ const Notification = () => {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/notifications",
+          `${API_URL}/api/notifications`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -46,7 +47,7 @@ const Notification = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/notifications/${id}/toggle-read`,
+        `${API_URL}/api/notifications/${id}/toggle-read`,
         {
           method: "PUT",
           headers: {
@@ -74,7 +75,7 @@ const Notification = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/notifications/${id}`,
+        `${API_URL}/api/notifications/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${authToken}` },
@@ -95,7 +96,7 @@ const Notification = () => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/notifications/clear-all",
+        `${API_URL}/api/notifications/clear-all`,
         {
           method: "DELETE",
           headers: {

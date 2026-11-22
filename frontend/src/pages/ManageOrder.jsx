@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { API_URL } from "../config";
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -20,7 +21,7 @@ const ManageOrders = () => {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/orders", {
+        const response = await fetch(`${API_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
 
@@ -42,7 +43,7 @@ const ManageOrders = () => {
     const authToken = localStorage.getItem("authToken");
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/orders/${orderId}/update-status`,
+        `${API_URL}/api/orders/${orderId}/update-status`,
         {
           method: "PUT",
           headers: {
@@ -72,7 +73,7 @@ const ManageOrders = () => {
     const authToken = localStorage.getItem("authToken");
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/orders/${orderId}/cancel`,
+        `${API_URL}/api/orders/${orderId}/cancel`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${authToken}` },

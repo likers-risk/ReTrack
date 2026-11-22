@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 const AddItems = () => {
   const [product_name, setProductName] = useState("");
@@ -42,7 +43,7 @@ const AddItems = () => {
 
     try {
       const authToken = localStorage.getItem("authToken");
-      const response = await fetch("http://127.0.0.1:8000/api/products", {
+      const response = await fetch(`${API_URL}/api/products`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}` },
         body: formData,

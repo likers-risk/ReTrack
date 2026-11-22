@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { API_URL } from "../config";
 
 const ProductView = () => {
   const { isDarkMode } = useTheme();
@@ -32,7 +33,7 @@ const ProductView = () => {
     try {
       const authToken = localStorage.getItem("authToken");
 
-      const response = await fetch("http://127.0.0.1:8000/api/products", {
+      const response = await fetch(`${API_URL}/api/products`, {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -65,7 +66,7 @@ const ProductView = () => {
       setIsSearching(true);
       setError("");
       const response = await fetch(
-        `http://127.0.0.1:8000/api/search-product?query=${encodeURIComponent(
+        `${API_URL}/api/search-product?query=${encodeURIComponent(
           term
         )}`,
         {
@@ -118,7 +119,7 @@ const ProductView = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/products/${productId}`,
+        `${API_URL}/api/products/${productId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${authToken}` },
@@ -157,7 +158,7 @@ const ProductView = () => {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/purchase", {
+      const response = await fetch(`${API_URL}/api/purchase`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -230,7 +231,7 @@ const ProductView = () => {
       formData.append("_method", "PUT");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/products/${product.id}`,
+        `${API_URL}/api/products/${product.id}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${authToken}` },
@@ -458,7 +459,7 @@ const ProductView = () => {
                   {/* Product Image */}
                   {p.image ? (
                     <img
-                      src={`http://127.0.0.1:8000/storage/${p.image}`}
+                      src={`${API_URL}/storage/${p.image}`}
                       className="card-img-top"
                       alt={p.product_name}
                       style={{

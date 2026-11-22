@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import UserProfile from "../assets/userprofile.png";
+import { API_URL } from "../config";
 
 const EditProfile = () => {
   const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ const EditProfile = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/user-profile/${userId}`,
+          `${API_URL}/api/user-profile/${userId}`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -78,7 +79,7 @@ const EditProfile = () => {
     try {
       setSaving(true);
 
-      const response = await fetch("http://127.0.0.1:8000/api/edit-profile", {
+      const response = await fetch(`${API_URL}/api/edit-profile`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}` },
         body: formData,
@@ -207,7 +208,7 @@ const EditProfile = () => {
                     image
                       ? URL.createObjectURL(image)
                       : user.image
-                      ? `http://127.0.0.1:8000/storage/${user.image}`
+                      ? `${API_URL}/storage/${user.image}`
                       : UserProfile
                   }
                   alt="Profile"
