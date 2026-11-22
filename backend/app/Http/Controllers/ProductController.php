@@ -50,7 +50,7 @@ class ProductController extends Controller
             'price' => 'required_unless:auto_price,1,true|nullable|numeric|min:0',
             'cost' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
-            'expiration_date' => 'required|date',
+            'expiration_date' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -81,7 +81,7 @@ class ProductController extends Controller
                 'price' => $price,
                 'cost' => $validatedData['cost'],
                 'auto_price' => $autoPrice,
-                'expiration_date' => $validatedData['expiration_date'],
+                'expiration_date' => $validatedData['expiration_date'] ?? null,
                 'category_id' => $category->id,
                 'image' => $imagePath,
             ]);
@@ -131,7 +131,7 @@ class ProductController extends Controller
             'price' => 'required_unless:auto_price,1,true|nullable|numeric|min:0',
             'cost' => 'required|numeric|min:0',
             'stocks.quantity' => 'required|integer|min:0',
-            'expiration_date' => 'sometimes|date',
+            'expiration_date' => 'sometimes|nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
 
@@ -158,7 +158,10 @@ class ProductController extends Controller
                 'price' => $price,
                 'cost' => $validatedData['cost'],
                 'auto_price' => $autoPrice,
-                'expiration_date' => $validatedData['expiration_date'] ?? $product->expiration_date,
+                // Sent empty = product doesn't expire; not sent at all = keep the current date
+                'expiration_date' => array_key_exists('expiration_date', $validatedData)
+                    ? $validatedData['expiration_date']
+                    : $product->expiration_date,
                 'category_id' => $category?->id ?? $product->category_id,
                 'image' => $imagePath,
             ]);
@@ -333,6 +336,7 @@ class ProductController extends Controller
         $limit = now()->addDays($days)->endOfDay();
 
         $products = Product::with('stocks')
+            ->whereNotNull('expiration_date')
             ->whereDate('expiration_date', '<=', $limit->toDateString())
             ->orderBy('expiration_date')
             ->get()

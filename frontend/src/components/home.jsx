@@ -278,7 +278,7 @@ export default function Home() {
                         border: "1px solid #dee2e6",
                       }}
                     >
-                      {p.expiration_date}
+                      {p.expiration_date ? String(p.expiration_date).slice(0, 10) : "No expiry"}
                     </td>
                     <td
                       style={{

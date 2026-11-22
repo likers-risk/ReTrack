@@ -709,11 +709,12 @@ const ProductView = () => {
                             fontSize: "12px",
                           }}
                         >
-                          Exp:{" "}
-                          {new Date(p.expiration_date).toLocaleDateString(
-                            "en-US",
-                            { month: "short", year: "numeric" }
-                          )}
+                          {p.expiration_date
+                            ? `Exp: ${new Date(p.expiration_date).toLocaleDateString(
+                                "en-US",
+                                { month: "short", year: "numeric" }
+                              )}`
+                            : "No expiry"}
                         </span>
                       </div>
                     </div>
@@ -1165,10 +1166,14 @@ const ProductView = () => {
                   }
                 />
 
+                <label className="form-label small fw-semibold mb-1" htmlFor="update_expiration">
+                  Expiration date (optional — leave empty if it doesn't expire)
+                </label>
                 <input
+                  id="update_expiration"
                   type="date"
                   className="form-control mb-2"
-                  value={selectedProduct.expiration_date || ""}
+                  value={(selectedProduct.expiration_date || "").slice(0, 10)}
                   onChange={(e) =>
                     setSelectedProduct((prev) => ({
                       ...prev,

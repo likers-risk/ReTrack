@@ -244,7 +244,10 @@ const AddItems = () => {
                   />
                 </div>
 
-                <div className="col-sm-6 col-md-3">
+                <div className="col-sm-6 col-md-3 d-flex flex-column justify-content-end">
+                  <label htmlFor="cost" className="form-label small fw-semibold mb-1">
+                    Cost (₱)
+                  </label>
                   <input
                     type="number"
                     id="cost"
@@ -258,7 +261,10 @@ const AddItems = () => {
                   />
                 </div>
 
-                <div className="col-sm-6 col-md-3">
+                <div className="col-sm-6 col-md-3 d-flex flex-column justify-content-end">
+                  <label htmlFor="price" className="form-label small fw-semibold mb-1">
+                    Selling price (₱)
+                  </label>
                   <input
                     type="number"
                     id="price"
@@ -273,7 +279,10 @@ const AddItems = () => {
                   />
                 </div>
 
-                <div className="col-sm-6 col-md-3">
+                <div className="col-sm-6 col-md-3 d-flex flex-column justify-content-end">
+                  <label htmlFor="quantity" className="form-label small fw-semibold mb-1">
+                    Quantity
+                  </label>
                   <input
                     type="number"
                     id="quantity"
@@ -285,14 +294,17 @@ const AddItems = () => {
                   />
                 </div>
 
-                <div className="col-sm-6 col-md-3">
+                <div className="col-sm-6 col-md-3 d-flex flex-column justify-content-end">
+                  <label htmlFor="expiration_date" className="form-label small fw-semibold mb-1">
+                    Expiration date (optional)
+                  </label>
                   <input
                     type="date"
                     id="expiration_date"
+                    title="Leave empty if the product doesn't expire"
                     value={expiration_date}
                     onChange={(e) => setExpiration(e.target.value)}
                     className="form-control text-center"
-                    required
                   />
                 </div>
 
