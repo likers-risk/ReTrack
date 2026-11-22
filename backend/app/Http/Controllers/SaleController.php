@@ -77,8 +77,8 @@ class SaleController extends Controller
         $ordersCount = Sale::count();
 
         return response()->json([
-            'total_amount' => $totalAmount,
-            'today_amount' => $todayAmount,
+            'total_amount' => (float) $totalAmount,
+            'today_amount' => (float) $todayAmount,
             'orders_count' => $ordersCount,
         ]);
     }

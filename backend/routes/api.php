@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group( function () {
 
     Route::post('/logout',[UserController::class, 'logout']);
     // Everyone logged in (Admin and Staff) can view products
+    Route::get('/products/barcode/{barcode}', [ProductController::class, 'findByBarcode']);
     Route::apiResource('products', ProductController::class)->only(['index', 'show']);
     Route::post('/purchase',[OrderController::class, 'purchaseProducts']);
     Route::get('/orders/{id}',[OrderController::class, 'customerOrders']);

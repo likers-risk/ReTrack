@@ -13,6 +13,7 @@ class Product extends Model
     protected $fillable = [
         'category_id',
         'product_name',
+        'barcode',
         'description',
         'price',
         'cost',
@@ -23,6 +24,20 @@ class Product extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Always include the category's name when a product is sent to the frontend. */
+    protected $appends = ['category_name'];
+
+    // Always send prices as numbers (Postgres returns decimals as text).
+    protected $casts = [
+        'price' => 'float',
+        'cost' => 'float',
+    ];
+
+    public function getCategoryNameAttribute(): ?string
+    {
+        return $this->categories?->category_name;
     }
 
     public function categories()

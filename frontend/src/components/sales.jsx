@@ -64,7 +64,7 @@ const Sales = () => {
       (a, b) => new Date(a.date) - new Date(b.date)
     );
     const labels = sorted.map((s) => new Date(s.date).toLocaleDateString());
-    const data = sorted.map((s) => s.amount);
+    const data = sorted.map((s) => Number(s.amount) || 0);
 
     setGraphData({ labels, data });
   };
@@ -135,7 +135,7 @@ const Sales = () => {
             <div className="card p-3 flex-fill bg-primary text-white">
               <h5>Total Sales</h5>
               <p className="fs-4">
-                ₱ {sales.reduce((sum, s) => sum + s.amount, 0).toLocaleString()}
+                ₱ {sales.reduce((sum, s) => sum + (Number(s.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <div className="card p-3 flex-fill bg-success text-white">
@@ -148,8 +148,8 @@ const Sales = () => {
                       new Date(s.date).toLocaleDateString() ===
                       new Date().toLocaleDateString()
                   )
-                  .reduce((sum, s) => sum + s.amount, 0)
-                  .toLocaleString()}
+                  .reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+                  .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <div className="card p-3 flex-fill bg-warning text-white">
@@ -220,7 +220,7 @@ const Sales = () => {
                     <tr key={s.id}>
                       <td>{s.id}</td>
                       <td>{s.product}</td>
-                      <td>₱ {s.amount.toLocaleString()}</td>
+                      <td>₱ {(Number(s.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td>{new Date(s.date).toLocaleString()}</td>
                     </tr>
                   ))

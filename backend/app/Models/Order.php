@@ -12,6 +12,11 @@ class Order extends Model
         'total_price'
     ];
 
+    // Always send these as numbers (Postgres returns decimals as text).
+    protected $casts = [
+        'total_price' => 'float',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

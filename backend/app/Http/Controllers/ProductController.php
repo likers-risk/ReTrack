@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -40,6 +41,7 @@ class ProductController extends Controller
 
         $validatedData = $request->validate([
             'product_name' => 'required|string|max:255',
+            'barcode' => 'nullable|string|max:64|unique:products,barcode',
             'category_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -68,8 +70,8 @@ class ProductController extends Controller
 
         $product = Product::create([
             'product_name' => $validatedData['product_name'],
+            'barcode' => $validatedData['barcode'] ?? null,
             'description' => $validatedData['description'],
-            'category_name' => $validatedData['category_name'],
             'price' => $validatedData['price'],
             'cost' => $validatedData['cost'],
             'expiration_date' => $validatedData['expiration_date'],
@@ -109,13 +111,14 @@ class ProductController extends Controller
     {
         $validatedData = $request->validate([
             'product_name' => 'sometimes|string|max:255',
+            'barcode' => ['nullable', 'string', 'max:64', Rule::unique('products', 'barcode')->ignore($product->id)],
             'category_name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'cost' => 'required|numeric',
             'stocks.quantity' => 'required|integer|min:0', 
             'expiration_date' => 'sometimes|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
 
         $category = Category::firstOrCreate([
@@ -129,6 +132,7 @@ class ProductController extends Controller
 
         $product->update([
             'product_name' => $validatedData['product_name'],
+            'barcode' => $validatedData['barcode'] ?? null,
             'description' => $validatedData['description'],
             'price' => $validatedData['price'],
             'cost' => $validatedData['cost'],
@@ -161,6 +165,24 @@ class ProductController extends Controller
         ]);
     }
 
+    /** Find one product by its barcode (used by the scanner in Shopping). */
+    public function findByBarcode(string $barcode)
+    {
+        $product = Product::with(['categories', 'stocks'])
+            ->where('barcode', trim($barcode))
+            ->first();
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'No product found with that barcode.'
+            ], 404);
+        }
+
+        $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+
+        return response()->json(['product' => $product]);
+    }
+
     public function searchProduct(Request $request)
     {
         $query = $request->input('query');
@@ -168,8 +190,13 @@ class ProductController extends Controller
         $product = collect();
 
         if ($query) {
-            $product = Product::where('product_name', 'LIKE', "%{$query}%")
-                ->orWhere('description', 'LIKE', "%{$query}%")
+            $term = '%' . mb_strtolower($query) . '%';
+            $product = Product::with(['categories', 'stocks'])
+                ->where(function ($q) use ($term, $query) {
+                    $q->whereRaw('LOWER(product_name) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(description) LIKE ?', [$term])
+                        ->orWhere('barcode', trim($query));
+                })
                 ->orderBy('product_name')
                 ->get();
         }

@@ -123,24 +123,20 @@ class OrderController extends Controller
         $totalSales = Sale::sum('amount');
 
         return response()->json([
-            'total_sales' => $totalSales,
+            'total_sales' => (float) $totalSales,
         ]);
     }
 
     public function totalRevenue()
     {
 
-        $totalSales = Sale::sum('amount');
-
-
-        $totalCostOfSold = DB::table('sales')
-            ->join('products', 'sales.product', '=', 'products.product_name')
-            ->sum(DB::raw('products.cost'));
-
-        $revenue = $totalSales - $totalCostOfSold;
+        // Profit = (selling price - cost) x quantity, for every item sold.
+        $revenue = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->sum(DB::raw('order_items.quantity * (order_items.list_price - products.cost)'));
 
         return response()->json([
-            'revenue' => $revenue,
+            'revenue' => (float) $revenue,
         ]);
     }
 }

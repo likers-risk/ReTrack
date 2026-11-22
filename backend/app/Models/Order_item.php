@@ -12,6 +12,11 @@ class Order_item extends Model
         'list_price'
     ];
 
+    // Always send these as numbers (Postgres returns decimals as text).
+    protected $casts = [
+        'list_price' => 'float',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
