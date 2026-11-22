@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { API_URL } from "../config";
+import BarcodeScanner from "./BarcodeScanner";
 
 const ProductView = () => {
   const { isDarkMode } = useTheme();
@@ -12,6 +13,10 @@ const ProductView = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [scanCode, setScanCode] = useState("");
+  const [scanMessage, setScanMessage] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const scanInputRef = useRef(null);
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -113,6 +118,54 @@ const ProductView = () => {
       }
     });
   };
+
+  // Look up a scanned barcode and put that product in the cart.
+  const addByBarcode = useCallback(async (rawCode) => {
+    const code = (rawCode || "").trim();
+    if (!code) return;
+    setScanMessage(null);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/products/barcode/${encodeURIComponent(code)}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        setScanMessage({ type: "danger", text: `No product with barcode ${code}.` });
+        return;
+      }
+      setCartItems((prevCart) => {
+        const existing = prevCart.find((item) => item.id === data.product.id);
+        if (existing) {
+          return prevCart.map((item) =>
+            item.id === data.product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        }
+        return [...prevCart, { ...data.product, quantity: 1 }];
+      });
+      setScanMessage({ type: "success", text: `Added ${data.product.product_name} to cart.` });
+    } catch {
+      setScanMessage({ type: "danger", text: "Could not reach the server. Try again." });
+    } finally {
+      setScanCode("");
+      scanInputRef.current?.focus();
+    }
+  }, []);
+
+  const handleCameraScan = useCallback(
+    (code) => {
+      setShowScanner(false);
+      addByBarcode(code);
+    },
+    [addByBarcode]
+  );
 
   const deleteProduct = async (productId) => {
     const authToken = localStorage.getItem("authToken");
@@ -217,6 +270,7 @@ const ProductView = () => {
     try {
       const formData = new FormData();
       formData.append("product_name", product.product_name || "");
+      formData.append("barcode", product.barcode || "");
       formData.append("category_name", product.category_name || "");
       formData.append("description", product.description || "");
       formData.append("price", product.price || 0);
@@ -393,7 +447,48 @@ const ProductView = () => {
           >
             Products
           </h2>
-          <div className="mb-5" style={{ width: "400px" }}>
+          <div className="mb-3" style={{ maxWidth: "400px" }}>
+            <form
+              className="input-group"
+              onSubmit={(e) => {
+                e.preventDefault();
+                addByBarcode(scanCode);
+              }}
+            >
+              <span className="input-group-text">
+                <i className="fa-solid fa-barcode"></i>
+              </span>
+              <input
+                ref={scanInputRef}
+                type="text"
+                className="form-control"
+                placeholder="Scan barcode to add to cart"
+                value={scanCode}
+                onChange={(e) => setScanCode(e.target.value)}
+                autoFocus
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowScanner(true)}
+                title="Scan with camera"
+              >
+                <i className="fa-solid fa-camera"></i>
+              </button>
+            </form>
+            {scanMessage && (
+              <div className={`alert alert-${scanMessage.type} py-1 px-2 mt-2 mb-0 small`}>
+                {scanMessage.text}
+              </div>
+            )}
+          </div>
+          {showScanner && (
+            <BarcodeScanner
+              onDetected={handleCameraScan}
+              onClose={() => setShowScanner(false)}
+            />
+          )}
+          <div className="mb-5" style={{ maxWidth: "400px" }}>
             <div className="input-group">
               <input
                 type="text"
@@ -496,6 +591,15 @@ const ProductView = () => {
                     >
                       {p.product_name}
                     </h6>
+                    {p.barcode && (
+                      <small
+                        className="d-block mb-2"
+                        style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
+                      >
+                        <i className="fa-solid fa-barcode me-1"></i>
+                        {p.barcode}
+                      </small>
+                    )}
 
                     {p.description && (
                       <p
@@ -845,6 +949,19 @@ const ProductView = () => {
                     setSelectedProduct((prev) => ({
                       ...prev,
                       product_name: e.target.value,
+                    }))
+                  }
+                />
+
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Barcode (optional)"
+                  value={selectedProduct.barcode || ""}
+                  onChange={(e) =>
+                    setSelectedProduct((prev) => ({
+                      ...prev,
+                      barcode: e.target.value,
                     }))
                   }
                 />

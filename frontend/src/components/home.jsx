@@ -129,7 +129,7 @@ export default function Home() {
                     border: "1px solid #dee2e6",
                   }}
                 >
-                  ID
+                  #
                 </th>
                 <th
                   style={{
@@ -201,7 +201,7 @@ export default function Home() {
             </thead>
             <tbody>
               {recentProducts.length > 0 ? (
-                recentProducts.map((p) => (
+                recentProducts.map((p, index) => (
                   <tr key={p.id}>
                     <td
                       style={{
@@ -211,7 +211,7 @@ export default function Home() {
                         border: "1px solid #dee2e6",
                       }}
                     >
-                      {p.id}
+                      {index + 1}
                     </td>
                     <td
                       style={{
@@ -222,6 +222,12 @@ export default function Home() {
                       }}
                     >
                       {p.product_name}
+                      {p.barcode && (
+                        <small className="d-block text-muted">
+                          <i className="fa-solid fa-barcode me-1"></i>
+                          {p.barcode}
+                        </small>
+                      )}
                     </td>
                     <td
                       style={{
@@ -278,7 +284,7 @@ export default function Home() {
               ) : (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="text-center"
                     style={{
                       color: isDarkMode ? "#9ca3af" : "#6b7280",
@@ -327,7 +333,7 @@ export default function Home() {
         ) : (
           <p
             className="mb-0"
-            style={{ color: isDarkMode ? "#86efac" : "#16a34a" }}
+            style={{ color: "white" }}
           >
             No low stock items!
           </p>

@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
+import BarcodeScanner from "./BarcodeScanner";
 
 const AddItems = () => {
   const [product_name, setProductName] = useState("");
+  const [barcode, setBarcode] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
   const [category_name, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -27,12 +30,18 @@ const AddItems = () => {
     }
   }, [navigate]);
 
+  const handleCameraScan = useCallback((code) => {
+    setBarcode(code);
+    setShowScanner(false);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const formData = new FormData();
     formData.append("product_name", product_name);
+    formData.append("barcode", barcode.trim());
     formData.append("category_name", category_name);
     formData.append("description", description);
     formData.append("price", price);
@@ -52,6 +61,7 @@ const AddItems = () => {
       if (response.ok) {
         setIsVisible(true);
         setProductName("");
+        setBarcode("");
         setCategory("");
         setDescription("");
         setPrice("");
@@ -64,7 +74,12 @@ const AddItems = () => {
         setTimeout(() => navigate("/dashboard"), 1500);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Failed to add product.");
+        setError(
+          (errorData.errors &&
+            Object.values(errorData.errors).flat().join(" ")) ||
+            errorData.message ||
+            "Failed to add product."
+        );
       }
     } catch {
       setError("Failed to connect to the server. Please check your network.");
@@ -133,6 +148,38 @@ const AddItems = () => {
 
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
+                <div className="col-12">
+                  <div className="input-group">
+                    <span className="input-group-text">
+                      <i className="fa-solid fa-barcode"></i>
+                    </span>
+                    <input
+                      type="text"
+                      id="barcode"
+                      value={barcode}
+                      onChange={(e) => setBarcode(e.target.value)}
+                      onKeyDown={(e) => {
+                        // A USB scanner types the code then presses Enter.
+                        // Don't submit the form; jump to the next box instead.
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          document.getElementById("product_name")?.focus();
+                        }
+                      }}
+                      placeholder="Barcode (scan or type, optional)"
+                      className="form-control text-center"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowScanner(true)}
+                      title="Scan with camera"
+                    >
+                      <i className="fa-solid fa-camera"></i>
+                    </button>
+                  </div>
+                </div>
                 <div className="col-md-6">
                   <input
                     type="text"
@@ -238,6 +285,12 @@ const AddItems = () => {
                 Save
               </button>
             </form>
+            {showScanner && (
+              <BarcodeScanner
+                onDetected={handleCameraScan}
+                onClose={() => setShowScanner(false)}
+              />
+            )}
           </div>
         </div>
       </div>
