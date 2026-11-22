@@ -9,7 +9,10 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
-        'total_price'
+        'total_price',
+        'payment_method',
+        'client_ref',
+        'created_at'
     ];
 
     // Always send these as numbers (Postgres returns decimals as text).

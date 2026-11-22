@@ -53,8 +53,9 @@ class UserController extends Controller
 
 
     /**
-     * Public sign-up. Every account created here is an Admin
-     * and can log in right away.
+     * Public sign-up.
+     * - The very first account becomes the Admin (the business owner) and can log in right away.
+     * - Everyone after that becomes Staff and must be approved by an Admin first.
      */
     public function signup(Request $request)
     {
@@ -64,16 +65,21 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        $isFirstAccount = User::count() === 0;
+
         User::create([
             'username' => $validatedData['username'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
-            'role' => 'Admin',
-            'status' => 'approved',
+            'role' => $isFirstAccount ? 'Admin' : 'Staff',
+            'status' => $isFirstAccount ? 'approved' : 'pending',
         ]);
 
         return response()->json([
-            'message' => 'Account created! You can now log in.'
+            'message' => $isFirstAccount
+                ? 'Admin account created! You can now log in.'
+                : 'Account created! An admin needs to approve it before you can log in.',
+            'can_login' => $isFirstAccount,
         ], 201);
     }
 
