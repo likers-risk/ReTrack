@@ -197,9 +197,9 @@ const Profile = ({ userId }) => {
           {user.role === "Admin" && (
             <button
               className="btn btn-outline-primary text-start"
-              onClick={() => handleNavigate("approvals")}
+              onClick={() => handleNavigate("/register")}
             >
-              <i className="fa fa-user-check me-2"></i>Pending Sign-ups
+              <i className="fa fa-user-plus me-2"></i>Add Staff
             </button>
           )}
           <button

@@ -74,8 +74,8 @@ export default function Register() {
             className="card-title text-center mb-4"
             style={{ color: "yellow" }}
           >
-            <span style={{ color: "orangered" }}>Create</span>{" "}
-            <span style={{ color: "darkblue" }}>an</span> Account
+            <span style={{ color: "orangered" }}>Add</span>{" "}
+            <span style={{ color: "darkblue" }}>Staff</span> Account
           </h2>
 
           {message && (
