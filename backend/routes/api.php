@@ -44,8 +44,8 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::put('/notifications/{id}/toggle-read', [NotificationController::class, 'toggleRead']);
+    Route::delete('/notifications/clear-all', [NotificationController::class, 'clearAll']);
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-    Route::delete('notifications/clear-all', [NotificationController::class, 'clearAll']);
     Route::get('/low-stock', [ProductController::class, 'lowStock']);
     Route::get('/top-products', [ProductController::class, 'topProducts']);
 });

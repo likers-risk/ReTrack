@@ -131,6 +131,7 @@ class ProductController extends Controller
             'product_name' => $validatedData['product_name'],
             'description' => $validatedData['description'],
             'price' => $validatedData['price'],
+            'cost' => $validatedData['cost'],
             'expiration_date' => $validatedData['expiration_date'] ?? $product->expiration_date,
             'category_id' => $category->id,
             'image' => $imagePath,
@@ -143,7 +144,7 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Product updated successfully',
-            'product' => $product->load(['category', 'stocks'])
+            'product' => $product->load(['categories', 'stocks'])
         ], 200);
     }
 
