@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import BarcodeScanner from "./BarcodeScanner";
 import ImagePicker from "./ImagePicker";
+import { apiFetch, peso } from "../api";
 
 const AddItems = () => {
   const [product_name, setProductName] = useState("");
@@ -10,6 +11,9 @@ const AddItems = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [category_name, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [autoPrice, setAutoPrice] = useState(false);
+  const [markup, setMarkup] = useState(null);
   const [price, setPrice] = useState("");
   const [cost, setCost] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -31,6 +35,16 @@ const AddItems = () => {
     }
   }, [navigate]);
 
+  // Pricing formula from Settings, for the suggested price.
+  useEffect(() => {
+    apiFetch("/settings")
+      .then(({ ok, data }) => ok && setMarkup(Number(data.settings.markup_percent)))
+      .catch(() => {});
+  }, []);
+
+  const suggestedPrice =
+    markup !== null && cost !== "" ? Math.round(Number(cost) * (1 + markup / 100) * 100) / 100 : null;
+
   const handleCameraScan = useCallback((code) => {
     setBarcode(code);
     setShowScanner(false);
@@ -45,7 +59,9 @@ const AddItems = () => {
     formData.append("barcode", barcode.trim());
     formData.append("category_name", category_name);
     formData.append("description", description);
-    formData.append("price", price);
+    formData.append("supplier", supplier.trim());
+    formData.append("auto_price", autoPrice ? "1" : "0");
+    if (!autoPrice) formData.append("price", price);
     formData.append("cost", cost);
     formData.append("quantity", quantity);
     formData.append("expiration_date", expiration_date);
@@ -65,6 +81,8 @@ const AddItems = () => {
         setBarcode("");
         setCategory("");
         setDescription("");
+        setSupplier("");
+        setAutoPrice(false);
         setPrice("");
         setCost("");
         setQuantity("");
@@ -205,6 +223,17 @@ const AddItems = () => {
                 </div>
 
                 <div className="col-12">
+                  <input
+                    type="text"
+                    id="supplier"
+                    value={supplier}
+                    onChange={(e) => setSupplier(e.target.value)}
+                    placeholder="Supplier (optional)"
+                    className="form-control text-center"
+                  />
+                </div>
+
+                <div className="col-12">
                   <textarea
                     id="description"
                     value={description}
@@ -218,10 +247,12 @@ const AddItems = () => {
                 <div className="col-sm-6 col-md-3">
                   <input
                     type="number"
-                    id="price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="Price"
+                    id="cost"
+                    min="0"
+                    step="0.01"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    placeholder="Cost"
                     className="form-control text-center"
                     required
                   />
@@ -230,12 +261,15 @@ const AddItems = () => {
                 <div className="col-sm-6 col-md-3">
                   <input
                     type="number"
-                    id="cost"
-                    value={cost}
-                    onChange={(e) => setCost(e.target.value)}
-                    placeholder="Cost"
+                    id="price"
+                    min="0"
+                    step="0.01"
+                    value={autoPrice ? suggestedPrice ?? "" : price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Selling price"
                     className="form-control text-center"
-                    required
+                    disabled={autoPrice}
+                    required={!autoPrice}
                   />
                 </div>
 
@@ -260,6 +294,36 @@ const AddItems = () => {
                     className="form-control text-center"
                     required
                   />
+                </div>
+
+                <div className="col-12">
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="auto_price"
+                      checked={autoPrice}
+                      onChange={(e) => setAutoPrice(e.target.checked)}
+                    />
+                    <label className="form-check-label" htmlFor="auto_price">
+                      Automatic price (cost + {markup ?? "…"}% markup from Settings)
+                    </label>
+                  </div>
+                  {suggestedPrice !== null && (
+                    <small className="text-muted d-flex align-items-center gap-2">
+                      Suggested retail price: <strong>{peso(suggestedPrice)}</strong>
+                      {!autoPrice && (
+                        <button
+                          type="button"
+                          className="btn btn-link btn-sm p-0"
+                          onClick={() => setPrice(String(suggestedPrice))}
+                        >
+                          Use it
+                        </button>
+                      )}
+                    </small>
+                  )}
                 </div>
 
                 <div className="col-12">

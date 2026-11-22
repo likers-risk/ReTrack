@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/Retrack.png";
 import { API_URL } from "../config";
@@ -11,6 +11,11 @@ export default function Login() {
   const [Token, setToken] = useState("");
 
   const navigate = useNavigate();
+
+  // Already logged in on this device? Go straight in (also works offline).
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) navigate("/dashboard/shopping", { replace: true });
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -50,7 +55,11 @@ export default function Login() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Failed to connect to the server. Please Try again.");
+      setError(
+        navigator.onLine
+          ? "Can't reach the server. It may be waking up — wait a minute and try again."
+          : "No internet. You need to be online to log in the first time."
+      );
     }
   };
 

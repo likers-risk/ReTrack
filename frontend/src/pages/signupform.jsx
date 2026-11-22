@@ -48,7 +48,7 @@ export default function Signup() {
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        setTimeout(() => navigate("/"), 1500);
+        if (data.can_login) setTimeout(() => navigate("/"), 1500);
       } else {
         setError(
           (data.errors && Object.values(data.errors).flat().join(" ")) ||

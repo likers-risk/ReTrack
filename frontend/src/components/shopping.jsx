@@ -4,6 +4,9 @@ import { useTheme } from "../context/ThemeContext";
 import { API_URL } from "../config";
 import BarcodeScanner from "./BarcodeScanner";
 import ImagePicker from "./ImagePicker";
+import StockModal from "./StockModal";
+import { apiFetch, errorMessage, peso } from "../api";
+import { getSavedProducts, isNetworkError, queueSale, saveProducts } from "../offline";
 
 const ProductView = () => {
   const { isDarkMode } = useTheme();
@@ -13,6 +16,10 @@ const ProductView = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successText, setSuccessText] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [stockProduct, setStockProduct] = useState(null);
+  const [offlineNotice, setOfflineNotice] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [scanCode, setScanCode] = useState("");
   const [scanMessage, setScanMessage] = useState(null);
@@ -37,32 +44,31 @@ const ProductView = () => {
 
   const fetchProducts = async () => {
     try {
-      const authToken = localStorage.getItem("authToken");
-
-      const response = await fetch(`${API_URL}/api/products`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          ...(authToken && { Authorization: `Bearer ${authToken}` }),
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Error ${response.status}`);
-      }
-
-      const data = await response.json();
+      const { ok, status, data } = await apiFetch("/products");
+      if (!ok) throw new Error(data.message || `Error ${status}`);
       setProducts(data.products || []);
+      saveProducts(data.products || []);
+      setOfflineNotice("");
+      setError("");
     } catch (err) {
-      setError(err.message || "Failed to fetch products");
+      if (isNetworkError(err)) {
+        // No internet: show the list saved on this device.
+        const saved = getSavedProducts();
+        setProducts(saved.products);
+        setOfflineNotice(
+          saved.savedAt
+            ? `Offline: showing products saved on this device (${new Date(saved.savedAt).toLocaleString()}).`
+            : "Offline and no products saved on this device yet. Open this page once while online."
+        );
+      } else {
+        setError(err.message || "Failed to fetch products");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const searchProducts = async (term) => {
-    const authToken = localStorage.getItem("authToken");
     if (!term.trim()) {
       fetchProducts();
       return;
@@ -71,25 +77,24 @@ const ProductView = () => {
     try {
       setIsSearching(true);
       setError("");
-      const response = await fetch(
-        `${API_URL}/api/search-product?query=${encodeURIComponent(
-          term
-        )}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to search products");
-
-      const data = await response.json();
+      const { ok, data } = await apiFetch(`/search-product?query=${encodeURIComponent(term)}`);
+      if (!ok) throw new Error("Failed to search products");
       setProducts(data.products || []);
     } catch (err) {
-      setError(err.message);
-      setProducts([]);
+      if (isNetworkError(err)) {
+        const t = term.toLowerCase();
+        setProducts(
+          getSavedProducts().products.filter(
+            (p) =>
+              p.product_name?.toLowerCase().includes(t) ||
+              p.description?.toLowerCase().includes(t) ||
+              p.barcode === term.trim()
+          )
+        );
+      } else {
+        setError(err.message);
+        setProducts([]);
+      }
     } finally {
       setIsSearching(false);
     }
@@ -97,6 +102,13 @@ const ProductView = () => {
 
   useEffect(() => {
     fetchProducts();
+    const refresh = () => fetchProducts();
+    window.addEventListener("retrack:synced", refresh);
+    window.addEventListener("online", refresh);
+    return () => {
+      window.removeEventListener("retrack:synced", refresh);
+      window.removeEventListener("online", refresh);
+    };
   }, []);
 
   const handleSearchChange = (e) => {
@@ -153,7 +165,22 @@ const ProductView = () => {
       });
       setScanMessage({ type: "success", text: `Added ${data.product.product_name} to cart.` });
     } catch {
-      setScanMessage({ type: "danger", text: "Could not reach the server. Try again." });
+      // Offline: look in the products saved on this device.
+      const product = getSavedProducts().products.find((p) => p.barcode === code);
+      if (!product) {
+        setScanMessage({ type: "danger", text: `Offline: no saved product with barcode ${code}.` });
+      } else {
+        setCartItems((prevCart) => {
+          const existing = prevCart.find((item) => item.id === product.id);
+          if (existing) {
+            return prevCart.map((item) =>
+              item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            );
+          }
+          return [...prevCart, { ...product, quantity: 1 }];
+        });
+        setScanMessage({ type: "success", text: `Added ${product.product_name} to cart (offline).` });
+      }
     } finally {
       setScanCode("");
       scanInputRef.current?.focus();
@@ -190,10 +217,21 @@ const ProductView = () => {
     }
   };
 
-  const buyProductsInCart = async () => {
-    const authToken = localStorage.getItem("authToken");
+  const showSuccess = (text) => {
+    setSuccessText(text);
+    setIsSuccess(true);
+    setTimeout(() => setIsSuccess(false), 3000);
+  };
 
-    if (!authToken) {
+  const saveSaleOffline = () => {
+    queueSale(cartItems, paymentMethod);
+    setCartItems([]);
+    setProducts(getSavedProducts().products);
+    showSuccess("No internet — sale saved on this device. Press “Sync now” when you're back online.");
+  };
+
+  const buyProductsInCart = async () => {
+    if (!localStorage.getItem("authToken")) {
       setError("Authentication token missing. Please log in.");
       navigate("/");
       return;
@@ -204,43 +242,38 @@ const ProductView = () => {
       return;
     }
 
+    if (!navigator.onLine) {
+      saveSaleOffline();
+      return;
+    }
+
     const payload = {
       cart_items: cartItems.map((item) => ({
         product_id: item.id,
         quantity: item.quantity,
       })),
+      payment_method: paymentMethod,
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/purchase`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to purchase products.");
+      const { ok, data } = await apiFetch("/purchase", { method: "POST", body: payload });
+      if (!ok) {
+        setError(errorMessage(data, "Failed to purchase products."));
+        return;
       }
 
-      setIsSuccess(true);
       setError("");
       setCartItems([]);
       fetchProducts();
+      showSuccess(`Sale recorded — ${peso(data.order?.total_price)} (${paymentMethod.toUpperCase()}).`);
 
       if (data.low_stock_notifications?.length) {
         setLowStockMessages(data.low_stock_notifications);
         setShowLowStockModal(true);
       }
-
-      setTimeout(() => setIsSuccess(false), 3000);
     } catch (err) {
-      setError(err.message);
+      if (isNetworkError(err)) saveSaleOffline();
+      else setError(err.message);
     }
   };
 
@@ -272,6 +305,8 @@ const ProductView = () => {
       const formData = new FormData();
       formData.append("product_name", product.product_name || "");
       formData.append("barcode", product.barcode || "");
+      formData.append("supplier", product.supplier || "");
+      formData.append("auto_price", product.auto_price ? "1" : "0");
       formData.append("category_name", product.category_name || "");
       formData.append("description", product.description || "");
       formData.append("price", product.price || 0);
@@ -400,7 +435,7 @@ const ProductView = () => {
                 </h5>
               </div>
               <div className="modal-body text-center pt-2">
-                <p id="successDesc">Successfully Purchase.</p>
+                <p id="successDesc">{successText || "Purchase completed."}</p>
               </div>
             </div>
           </div>
@@ -448,6 +483,18 @@ const ProductView = () => {
           >
             Products
           </h2>
+          {offlineNotice && (
+            <div className="alert alert-secondary py-2 small">
+              <i className="fa-solid fa-plane me-2"></i>
+              {offlineNotice}
+            </div>
+          )}
+          {error && (
+            <div className="alert alert-danger d-flex align-items-center py-2">
+              <span>{error}</span>
+              <button className="btn-close ms-auto" onClick={() => setError("")} aria-label="Close" />
+            </div>
+          )}
           <div className="mb-3" style={{ maxWidth: "400px" }}>
             <form
               className="input-group"
@@ -483,6 +530,21 @@ const ProductView = () => {
               </div>
             )}
           </div>
+          {stockProduct && (
+            <StockModal
+              product={stockProduct}
+              onClose={() => setStockProduct(null)}
+              onDone={(text, updated) => {
+                setStockProduct(null);
+                if (updated) {
+                  setProducts((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)));
+                } else {
+                  setProducts(getSavedProducts().products);
+                }
+                showSuccess(text);
+              }}
+            />
+          )}
           {showScanner && (
             <BarcodeScanner
               onDetected={handleCameraScan}
@@ -658,7 +720,6 @@ const ProductView = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  {isAdmin && (
                   <div
                     className="card-footer d-flex gap-2 p-2"
                     style={{
@@ -670,30 +731,47 @@ const ProductView = () => {
                     }}
                   >
                     <button
-                      className="btn btn-sm btn-outline-primary flex-grow-1"
+                      className="btn btn-sm btn-outline-success flex-grow-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedProduct(p);
-                        setShowUpdateModal(true);
+                        setStockProduct(p);
                       }}
                       style={{ fontSize: "13px", padding: "6px" }}
+                      title="Restock, or remove expired/damaged items"
                     >
-                      <i className="fa-solid fa-pen me-1"></i>
-                      Update
+                      <i className="fa-solid fa-boxes-stacked me-1"></i>
+                      Stock
                     </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger flex-grow-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteProduct(p.id);
-                      }}
-                      style={{ fontSize: "13px", padding: "6px" }}
-                    >
-                      <i className="fa-solid fa-trash me-1"></i>
-                      Delete
-                    </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          className="btn btn-sm btn-outline-primary flex-grow-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProduct(p);
+                            setShowUpdateModal(true);
+                          }}
+                          style={{ fontSize: "13px", padding: "6px" }}
+                        >
+                          <i className="fa-solid fa-pen me-1"></i>
+                          Update
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger flex-grow-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`Remove ${p.product_name} from the list? Its sales history is kept.`)) {
+                              deleteProduct(p.id);
+                            }
+                          }}
+                          style={{ fontSize: "13px", padding: "6px" }}
+                        >
+                          <i className="fa-solid fa-trash me-1"></i>
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -901,6 +979,21 @@ const ProductView = () => {
                       </span>
                     </div>
 
+                    <label className="form-label small mb-1" htmlFor="payment_method">
+                      Payment method
+                    </label>
+                    <select
+                      id="payment_method"
+                      className="form-select form-select-sm mb-3"
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="gcash">GCash</option>
+                      <option value="card">Card</option>
+                      <option value="other">Other</option>
+                    </select>
+
                     <button
                       className="btn btn-primary w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
                       onClick={buyProductsInCart}
@@ -993,9 +1086,47 @@ const ProductView = () => {
                 />
 
                 <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Supplier (optional)"
+                  value={selectedProduct.supplier || ""}
+                  onChange={(e) =>
+                    setSelectedProduct((prev) => ({
+                      ...prev,
+                      supplier: e.target.value,
+                    }))
+                  }
+                />
+
+                <div className="form-check form-switch mb-1">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="update_auto_price"
+                    checked={!!selectedProduct.auto_price}
+                    onChange={(e) =>
+                      setSelectedProduct((prev) => ({
+                        ...prev,
+                        auto_price: e.target.checked,
+                      }))
+                    }
+                  />
+                  <label className="form-check-label" htmlFor="update_auto_price">
+                    Automatic price (cost + markup from Settings)
+                  </label>
+                </div>
+                {selectedProduct.auto_price && (
+                  <small className="text-muted d-block mb-2">
+                    The price is recalculated from the cost when you save.
+                  </small>
+                )}
+
+                <input
                   type="number"
                   className="form-control mb-2"
                   placeholder="Price"
+                  disabled={!!selectedProduct.auto_price}
                   value={selectedProduct.price ?? ""}
                   onChange={(e) =>
                     setSelectedProduct((prev) => ({

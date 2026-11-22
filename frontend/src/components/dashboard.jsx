@@ -3,6 +3,9 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import retrackLogo from "../assets/Retrack.png";
 import "../CSS/Dashboard.css";
+import SyncBar from "./SyncBar";
+import { clearLogin } from "../api";
+import { getQueue } from "../offline";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -40,7 +43,16 @@ const Dashboard = () => {
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
 
   const handleLogout = () => {
-    localStorage.clear();
+    const waiting = getQueue().length;
+    if (
+      waiting > 0 &&
+      !window.confirm(
+        `${waiting} offline item(s) haven't been synced yet. They stay saved on this device, but sync them before switching devices. Log out anyway?`
+      )
+    ) {
+      return;
+    }
+    clearLogin();
     navigate("/");
   };
 
@@ -420,6 +432,7 @@ const Dashboard = () => {
             color: isDarkMode ? "#f9fafb" : "#1f2937",
           }}
         >
+          <SyncBar />
           <Outlet />
         </div>
       </div>

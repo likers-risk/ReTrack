@@ -75,6 +75,7 @@ const Profile = ({ userId }) => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("username");
         localStorage.removeItem("userId");
+        localStorage.removeItem("role");
         setTimeout(() => navigate("/"), 1000);
       } else {
         const errorData = await response.json();
@@ -196,12 +197,39 @@ const Profile = ({ userId }) => {
             <i className="fa fa-bell me-2"></i>Notifications
           </button>
           {user.role === "Admin" && (
-            <button
-              className="btn btn-outline-primary text-start"
-              onClick={() => handleNavigate("/register")}
-            >
-              <i className="fa fa-user-plus me-2"></i>Add Staff
-            </button>
+            <>
+              <small className="text-muted text-uppercase mt-2">Admin</small>
+              <button
+                className="btn btn-outline-primary text-start"
+                onClick={() => handleNavigate("sales-report")}
+              >
+                <i className="fa-solid fa-chart-column me-2"></i>Sales Report
+              </button>
+              <button
+                className="btn btn-outline-primary text-start"
+                onClick={() => handleNavigate("inventory-log")}
+              >
+                <i className="fa-solid fa-clipboard-list me-2"></i>Inventory Log
+              </button>
+              <button
+                className="btn btn-outline-primary text-start"
+                onClick={() => handleNavigate("/register")}
+              >
+                <i className="fa fa-user-plus me-2"></i>Add Staff
+              </button>
+              <button
+                className="btn btn-outline-primary text-start"
+                onClick={() => handleNavigate("approvals")}
+              >
+                <i className="fa fa-user-check me-2"></i>Pending Sign-ups
+              </button>
+              <button
+                className="btn btn-outline-primary text-start"
+                onClick={() => handleNavigate("settings")}
+              >
+                <i className="fa-solid fa-gear me-2"></i>Settings
+              </button>
+            </>
           )}
           <button
             className="btn btn-outline-secondary text-start"

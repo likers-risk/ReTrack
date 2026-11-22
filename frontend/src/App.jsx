@@ -16,6 +16,9 @@ import ManageOrders from "./pages/ManageOrder";
 import EditProfile from "./components/EditProfile";
 import PendingUsers from "./components/PendingUsers";
 import AdminOnly from "./components/AdminOnly";
+import Settings from "./pages/Settings";
+import InventoryLog from "./pages/InventoryLog";
+import SalesReport from "./pages/SalesReport";
 
 function App() {
   return (
@@ -38,6 +41,9 @@ function App() {
             <Route path="notification" element={<Notification />} />
             <Route path="edit-profile" element={<EditProfile />} />
             <Route path="approvals" element={<AdminOnly><PendingUsers /></AdminOnly>} />
+            <Route path="settings" element={<AdminOnly><Settings /></AdminOnly>} />
+            <Route path="inventory-log" element={<AdminOnly><InventoryLog /></AdminOnly>} />
+            <Route path="sales-report" element={<AdminOnly><SalesReport /></AdminOnly>} />
           </Route>
           <Route path="dashboard/orders" element={<ManageOrders />} />
         </Routes>
